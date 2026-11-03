@@ -45,6 +45,13 @@ export class JwtService {
     );
   }
 
+  generarTokenEmpleado(claims: ClaimsEmpleado): string {
+    return jwt.sign(claims, this.secret, {
+      algorithm: ALGORITMO,
+      expiresIn: '8h',
+    });
+  }
+
   /** Lanza error si el token es inválido, expiró o no fue firmado con HS384 */
   validarToken(token: string): Claims {
     return jwt.verify(token, this.secret, {

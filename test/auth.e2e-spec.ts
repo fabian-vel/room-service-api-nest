@@ -55,6 +55,20 @@ describe('Auth (e2e)', () => {
       .expect(401);
   });
 
+  it.each([
+    ['usuario inexistente', 'no-existe', 404],
+    ['contraseña incorrecta', 'cocina1', 422],
+  ])(
+    '/auth/empleado/login es público y rechaza %s',
+    async (_, usuario, status) => {
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/auth/empleado/login')
+        .send({ usuario, password: 'incorrecta' })
+        .expect(status);
+      expect(res.body.message).toBe('Credenciales inválidas');
+    },
+  );
+
   it('/auth/login es público y responde 404 con credenciales inválidas', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/v1/auth/login')
