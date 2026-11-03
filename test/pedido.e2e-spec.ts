@@ -45,16 +45,14 @@ describe('Crear pedido (e2e)', () => {
        WHERE haac_estado = 'A' AND haac_fecha_eliminacion IS NULL LIMIT 1`,
     );
     haacId = Number(acceso.rows[0].haac_id);
-    token = app
-      .get(JwtService)
-      .generarToken(
-        {
-          sub: acceso.rows[0].haac_habitacion,
-          clienteNombre: 'e2e',
-          accesoId: haacId,
-        },
-        new Date(Date.now() + 60_000),
-      );
+    token = app.get(JwtService).generarToken(
+      {
+        sub: acceso.rows[0].haac_habitacion,
+        clienteNombre: 'e2e',
+        accesoId: haacId,
+      },
+      new Date(Date.now() + 60_000),
+    );
     items = (
       await pool.query(
         `SELECT meit_id, meit_precio FROM tbl_menu_items

@@ -18,6 +18,7 @@ import { InferirDatosPedidoAdapter } from './infrastructure/persistence/inferir-
 import { InsertarDetallePedidoAdapter } from './infrastructure/persistence/insertar-detalle-pedido.adapter.js';
 import { InsertarPedidoAdapter } from './infrastructure/persistence/insertar-pedido.adapter.js';
 import { PedidoController } from './interfaces/http/pedido.controller.js';
+import { PedidoGateway } from './interfaces/ws/pedido.gateway.js';
 
 const REGLAS = [
   InferirDatosPedidoRule,
@@ -31,6 +32,7 @@ const REGLAS = [
   providers: [
     PedidoUseCase,
     PedidoNotificationUseCase,
+    PedidoGateway,
     ...REGLAS,
     // el motor recibe todas las reglas, como el List<ReglaNegocio> que Spring inyectaba en Java
     {
@@ -50,7 +52,5 @@ const REGLAS = [
       useClass: InsertarDetallePedidoAdapter,
     },
   ],
-  // el WebSocket de cocina (siguiente paso) se suscribe a las notificaciones
-  exports: [PedidoNotificationUseCase],
 })
 export class PedidoModule {}
