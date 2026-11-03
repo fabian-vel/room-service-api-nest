@@ -25,7 +25,8 @@ src/
     util/sql-loader.util.ts  carga los .sql de resources/querys
     database/sql.util.ts     ejecuta los .sql con parámetros nombrados (:param -> $n)
   modules/<contexto>/        domain (model, port) · application (usecase) · infrastructure (persistence, mapper) · interfaces/http
-                             migrados: constantes, etiqueta, menu-categoria
+                             auth, constantes, etiqueta, menu-categoria, menu-item, items-especiales,
+                             consulta-pedido, pedido (incluye el WebSocket /ws/pedidos)
 resources/querys/            archivos .sql
 ```
 

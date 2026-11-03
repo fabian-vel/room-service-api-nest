@@ -7,4 +7,8 @@ export abstract class HabitacionAccesoRepository {
     habitacion: string,
     codigo: string,
   ): Promise<HabitacionAcceso | null>;
+  /** null si no existe el acceso */
+  abstract consultaFechasAcceso(
+    haacId: number,
+  ): Promise<HabitacionAcceso | null>;
 }

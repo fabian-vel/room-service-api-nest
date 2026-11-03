@@ -5,6 +5,8 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { ConstantesModule } from './modules/constantes/constantes.module.js';
 import { ConsultaPedidoModule } from './modules/consulta-pedido/consulta-pedido.module.js';
 import { PedidoModule } from './modules/pedido/pedido.module.js';
+import { MenuItemModule } from './modules/menu-item/menu-item.module.js';
+import { ItemsEspecialesModule } from './modules/items-especiales/items-especiales.module.js';
 import { EtiquetaModule } from './modules/etiqueta/etiqueta.module.js';
 import { MenuCategoriaModule } from './modules/menu-categoria/menu-categoria.module.js';
 
@@ -19,6 +21,8 @@ import { MenuCategoriaModule } from './modules/menu-categoria/menu-categoria.mod
     MenuCategoriaModule,
     ConsultaPedidoModule,
     PedidoModule,
+    MenuItemModule,
+    ItemsEspecialesModule,
   ],
 })
 export class AppModule {}

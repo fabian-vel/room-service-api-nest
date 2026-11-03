@@ -16,7 +16,22 @@ export class ConstantesAdapter implements ConstantesRepository {
   private readonly actualizar = loadSql('querys/actualizar-constante.sql');
   private readonly eliminar = loadSql('querys/eliminar-constante.sql');
 
+  private readonly sql = loadSql('querys/consulta-constantes.sql');
+
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+
+  async consultaConstantes(llaves: string[]): Promise<Map<string, string>> {
+    const { rows } = await ejecutarSql<{
+      cons_llave: string;
+      cons_valor: string;
+    }>(
+      this.pool,
+      this.sql,
+      { LLAVES: llaves },
+      'Error al consultar constantes',
+    );
+    return new Map(rows.map((row) => [row.cons_llave, row.cons_valor]));
+  }
 
   async consultarConstantes(): Promise<Constantes[]> {
     const { rows } = await ejecutarSql(

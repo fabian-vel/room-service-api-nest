@@ -11,5 +11,7 @@ import { ConstantesController } from './interfaces/http/constantes.controller.js
     ConstantesUseCase,
     { provide: ConstantesRepository, useClass: ConstantesAdapter },
   ],
+  // items-especiales lee la constante de la etiqueta "recomendado del chef"
+  exports: [ConstantesRepository],
 })
 export class ConstantesModule {}

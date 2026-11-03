@@ -10,6 +10,7 @@ import { mapHabitacionAccesoRow } from '../mapper/habitacion-acceso.row-mapper.j
 @Injectable()
 export class HabitacionAccesoRepositoryAdapter implements HabitacionAccesoRepository {
   private readonly sqlAcceso = loadSql('querys/consultar-acceso.sql');
+  private readonly sqlFechaAcceso = loadSql('querys/consulta-fecha-acceso.sql');
 
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
@@ -22,6 +23,16 @@ export class HabitacionAccesoRepositoryAdapter implements HabitacionAccesoReposi
       this.sqlAcceso,
       { habitacion, codigo },
       'Error al consultar acceso',
+    );
+    return rows.length ? mapHabitacionAccesoRow(rows[0]) : null;
+  }
+
+  async consultaFechasAcceso(haacId: number): Promise<HabitacionAcceso | null> {
+    const { rows } = await ejecutarSql(
+      this.pool,
+      this.sqlFechaAcceso,
+      { HAAC_ID: haacId },
+      'Error al consultar fechas de acceso',
     );
     return rows.length ? mapHabitacionAccesoRow(rows[0]) : null;
   }
