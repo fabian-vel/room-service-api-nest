@@ -1,38 +1,152 @@
-# room-service-api-nest
+# HotelGuest — Backend · `room-service-api-nest`
 
-Migración del API `room-service-api` (Java/WebFlux) a NestJS con TypeScript y arquitectura hexagonal.
-Corre en paralelo al API Java (puerto 8084) contra la misma base de datos y mantiene el mismo contrato (`/api/v1/...`, `ApiResponse`, formato de errores).
+API REST y WebSocket de **HotelGuest**: los huéspedes piden del restaurante a su habitación desde la app móvil y la cocina gestiona los pedidos desde el front web.
 
-## Ejecutar
+Es la migración a NestJS + TypeScript del API Java `room-service-api` (Spring WebFlux). Mantiene el mismo contrato (rutas `/api/v1/...`, formato de respuestas y errores, tokens JWT compatibles), así que el front y la app solo cambian la URL base.
 
-```bash
-cp .env.example .env   # completar DB_PASSWORD
-npm install
-npm run start:dev
+---
+
+## Stack
+
+| Tecnología | Uso | Reemplaza en Java |
+|---|---|---|
+| Node.js 22 + TypeScript | Lenguaje y runtime | Java 21 |
+| NestJS 12 | Framework, inyección de dependencias | Spring Boot |
+| `async/await` | Código no bloqueante | WebFlux (`Mono`/`Flux`) |
+| `pg` (node-postgres) | Acceso a PostgreSQL con SQL propio | R2DBC |
+| `jsonwebtoken` (HS384) | Tokens JWT | jjwt |
+| `bcryptjs` | Contraseñas de empleados | BCryptPasswordEncoder |
+| `@nestjs/websockets` + `ws` | WebSocket de cocina | WebFlux WebSocket |
+| `@nestjs/swagger` | Documentación (Swagger UI) | SpringDoc OpenAPI |
+| Vitest + Supertest | Pruebas unitarias y e2e | JUnit |
+
+---
+
+## Arquitectura
+
+Hexagonal (puertos y adaptadores), un módulo de Nest por contexto:
+
 ```
+interfaces (http / ws)    controllers y gateway: reciben la petición y arman la respuesta
+        │
+application (usecase)     casos de uso y reglas de negocio; dependen solo de puertos
+        │
+domain (model, port)      modelos y puertos (clases abstractas: la inyección de Nest las usa como token)
+        ▲
+infrastructure            adaptadores de los puertos: PostgreSQL (persistence) y mapeo de filas (mapper)
+```
+
+Cada módulo registra `{ provide: Puerto, useClass: Adaptador }`, así los casos de uso no conocen la base de datos.
+
+### Motor de reglas
+
+Crear pedido ejecuta, en orden y dentro de una transacción, las reglas `INFERIR_DATOS_PEDIDO`, `CREAR_PEDIDO`, `INSERTAR_PEDIDO` e `INSERTAR_DETALLE_PEDIDO` (`shared/application/engine/motor-reglas.ts`). La primera que falla detiene el resto y revierte todo. Para agregar una regla: implementar `ReglaNegocio<T>`, registrarla en el módulo y agregar su id a la lista del caso de uso.
+
+---
 
 ## Estructura
 
 ```
 src/
-  main.ts / app.setup.ts     arranque y configuración global (prefijo, filtro de errores, CORS)
-  app.module.ts              registra el módulo de cada contexto migrado
-  shared/                    transversal
-    database/                pool de PostgreSQL (pg), token PG_POOL
-    domain/exception/        AppException, BusinessException (422), NotFoundException (404), ...
-    response/api-response.ts mismo formato de respuesta que el API Java
-    global-exception.filter.ts
-    util/sql-loader.util.ts  carga los .sql de resources/querys
-    database/sql.util.ts     ejecuta los .sql con parámetros nombrados (:param -> $n)
-  modules/<contexto>/        domain (model, port) · application (usecase) · infrastructure (persistence, mapper) · interfaces/http
-                             auth, constantes, etiqueta, menu-categoria, menu-item, items-especiales,
-                             consulta-pedido, pedido (incluye el WebSocket /ws/pedidos)
-resources/querys/            archivos .sql
+  main.ts / app.setup.ts       arranque y configuración global (prefijo, errores, CORS, WebSocket, Swagger)
+  app.module.ts                registra los módulos
+  shared/                      transversal
+    application/               MotorReglas y ReglaNegocio
+    database/                  pool de PostgreSQL, ejecutarSql (:param -> $n) y transacciones
+    domain/                    excepciones, Pagina, puerto TransactionManager
+    security/                  JwtService, JwtAuthGuard (global), @Public(), @Claims(), PasswordEncoder
+    response/api-response.ts   formato de respuesta { timestamp, status, message, data, size }
+    global-exception.filter.ts formato de error { timestamp, status, code, message, path, correlationId }
+  modules/
+    auth/                      login de habitación y de empleado, fechas de acceso
+    constantes/  etiqueta/  menu-categoria/     maestros
+    menu-item/  items-especiales/                menú de la app
+    consulta-pedido/           consultas de pedidos (app, tablero y lista paginada)
+    pedido/                    crear pedido (motor de reglas) y WebSocket de cocina
+resources/querys/              archivos .sql (los mismos del API Java)
+test/                          pruebas e2e contra la BD
 ```
+
+---
+
+## Endpoints
+
+Todos bajo `/api/v1` y con `Authorization: Bearer <token>`, salvo los de `auth`. El detalle y ejemplos están en Swagger UI.
+
+| Método | Ruta | Uso |
+|---|---|---|
+| POST | `/auth/login` | Login del huésped (habitación + código) |
+| POST | `/auth/empleado/login` | Login de empleado |
+| POST | `/fechas-acceso` | Fechas de inicio y fin del acceso |
+| GET · POST · PUT · DELETE | `/constantes`, `/etiquetas`, `/categorias` | Maestros (PUT y DELETE con `/{id}`) |
+| POST | `/etiquetas/consulta` | Etiquetas de una categoría o de un item |
+| GET | `/categorias/todas` | Categorías planas (maestro); `GET /categorias` las devuelve en árbol |
+| POST | `/menu` | Items de una categoría con sus etiquetas |
+| GET | `/items-especiales` | Más pedidos, más recientes y recomendados del chef |
+| POST | `/pedido` | Crear pedido (token de habitación) |
+| GET | `/consulta-pedidos` | Pedidos de la habitación del token |
+| GET | `/consulta-pedidos-fecha-actual` | Tablero de cocina |
+| GET | `/pedidos` | Lista paginada con filtros opcionales |
+
+**WebSocket:** `ws://<host>:<puerto>/ws/pedidos?token=<jwt>` envía a cocina cada evento de pedido (`{"type":"CREATED","pedidoId":...}`). Sin token o con token inválido cierra con el código 1003.
+
+**Swagger UI:** `http://localhost:8084/swagger-ui` (JSON en `/swagger-ui-json`). Usar "Authorize" con el token.
+
+---
+
+## Configuración
+
+Variables de entorno (en desarrollo, archivo `.env` en la raíz; ver `.env.example`):
+
+| Variable | Descripción | Por defecto |
+|---|---|---|
+| `PORT` | Puerto HTTP y WebSocket | `8084` |
+| `DB_HOST`, `DB_PORT`, `DB_NAME` | PostgreSQL | —, `5432`, — |
+| `DB_USER`, `DB_PASSWORD` | Credenciales de la BD | — |
+| `JWT_SECRET` | Secreto de los tokens (mínimo 48 caracteres; el mismo del API Java para que los tokens sirvan en ambos) | — |
+
+> `JWT_SECRET` va entre comillas en `.env`: contiene `#`, que sin comillas se toma como comentario.
+
+---
+
+## Ejecutar
+
+```bash
+npm install
+cp .env.example .env   # completar DB_PASSWORD y JWT_SECRET
+npm run start:dev      # desarrollo, recarga al guardar
+npm run build && npm run start:prod
+```
+
+Al arrancar verifica la conexión a la BD (`Conectado a hotelguestdb@localhost` en el log); si no responde, no arranca.
 
 ## Pruebas
 
 ```bash
 npm test          # unitarias
-npm run test:e2e  # requiere la BD disponible
+npm run test:e2e  # contra la BD real; crear pedido borra al final lo que creó
+npm run lint
 ```
+
+---
+
+## Errores
+
+| Excepción | HTTP | `code` |
+|---|---|---|
+| `BusinessException` | 422 | `BUSINESS_ERROR` |
+| `NotFoundException` (la de `shared/domain/exception`, no la de Nest) | 404 | `NOT_FOUND` |
+| `InternalServerErrorException` (errores de BD) | 500 | `INTERNAL_ERROR` |
+| `SqlLoadException` (`.sql` no encontrado) | 500 | `CONFIG_ERROR` |
+| Errores de Nest (token, ruta inexistente, id no numérico) | su status | `HTTP_ERROR` |
+
+---
+
+## Diferencias con el API Java
+
+- Crear pedido guarda pedido y detalle en una transacción, rechaza items inactivos (en Java se cobraban a 0) y valida cantidades.
+- Los campos opcionales vacíos funcionan al crear o editar maestros (en Java daban 500 por `bind(null)`).
+- `POST /etiquetas/consulta` funciona cuando hay resultados (en Java daba 500 por una columna inexistente en el mapeo).
+- Varios casos que en Java terminaban en 500 responden 400, 403, 404 o 422 con su mensaje.
+- El 401 trae el JSON de error estándar (en Java venía vacío); las fechas salen en ISO UTC (`...Z`).
+- No se migró `/ws/orders`: en Java nunca funcionó y no lo usa ningún cliente.

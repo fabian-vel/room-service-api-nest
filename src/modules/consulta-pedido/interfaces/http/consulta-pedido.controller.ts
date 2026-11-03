@@ -1,4 +1,5 @@
 import { Controller, ForbiddenException, Get, Query } from '@nestjs/common';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { BusinessException } from '../../../../shared/domain/exception/business.exception.js';
 import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { Claims } from '../../../../shared/security/claims.decorator.js';
@@ -11,6 +12,7 @@ const DEFAULT_SIZE = 20;
 const SHORT_MAX = 32767;
 const INT_MAX = 2147483647;
 
+@ApiTags('Pedidos')
 @Controller()
 export class ConsultaPedidoController {
   constructor(private readonly consultaPedidoUseCase: ConsultaPedidoUseCase) {}
@@ -42,6 +44,49 @@ export class ConsultaPedidoController {
   }
 
   @Get('pedidos')
+  @ApiQuery({
+    name: 'fechaDesde',
+    required: false,
+    type: 'string',
+    description: 'YYYY-MM-DD',
+  })
+  @ApiQuery({
+    name: 'fechaHasta',
+    required: false,
+    type: 'string',
+    description: 'YYYY-MM-DD (incluye todo el día)',
+  })
+  @ApiQuery({
+    name: 'estadoPedido',
+    required: false,
+    type: 'integer',
+    description:
+      'espe_id de mst_estados_pedido (1 pendiente, 2 en preparación, 3 entregado, 4 cancelado)',
+  })
+  @ApiQuery({
+    name: 'habitacion',
+    required: false,
+    type: 'string',
+    description: 'Número exacto de habitación',
+  })
+  @ApiQuery({
+    name: 'producto',
+    required: false,
+    type: 'string',
+    description: 'Parte del nombre de un producto del pedido',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: 'integer',
+    description: 'Página, desde 1 (por defecto 1)',
+  })
+  @ApiQuery({
+    name: 'size',
+    required: false,
+    type: 'integer',
+    description: 'Tamaño de página, 1 a 100 (por defecto 20)',
+  })
   async consultarPedidoFiltro(@Query() query: Record<string, unknown>) {
     const pagina = await this.consultaPedidoUseCase.consultarPedidoFiltro(
       toFiltro(query),

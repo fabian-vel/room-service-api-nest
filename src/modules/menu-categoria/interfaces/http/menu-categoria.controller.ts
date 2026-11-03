@@ -9,11 +9,13 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { SuccessMessages } from '../../../../shared/constant/success-messages.js';
 import { MenuCategoriaUseCase } from '../../application/usecase/menu-categoria.use-case.js';
 import type { MenuCategoria } from '../../domain/model/menu-categoria.js';
 
+@ApiTags('Categorías')
 @Controller('categorias')
 export class MenuCategoriaController {
   constructor(private readonly menuCategoriaUseCase: MenuCategoriaUseCase) {}
@@ -41,12 +43,34 @@ export class MenuCategoriaController {
 
   @Post()
   @HttpCode(200)
+  @ApiBody({
+    schema: {
+      example: {
+        mecaLlaveMst: 'MECA_BEBIDAS',
+        mecaNombre: 'Bebidas',
+        mecaDescripcion: 'Bebidas frías y calientes',
+        mecaImagenUrl: null,
+        mecaParentId: null,
+      },
+    },
+  })
   async insertarCategoria(@Body() categoria: MenuCategoria) {
     const id = await this.menuCategoriaUseCase.insertarCategoria(categoria);
     return ApiResponse.ok('Categoría creada exitosamente', id, 1);
   }
 
   @Put(':id')
+  @ApiBody({
+    schema: {
+      example: {
+        mecaLlaveMst: 'MECA_BEBIDAS',
+        mecaNombre: 'Bebidas',
+        mecaDescripcion: 'Bebidas frías y calientes',
+        mecaImagenUrl: null,
+        mecaParentId: null,
+      },
+    },
+  })
   async actualizarCategoria(
     @Param('id', ParseIntPipe) id: number,
     @Body() categoria: MenuCategoria,

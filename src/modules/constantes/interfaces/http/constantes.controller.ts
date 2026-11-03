@@ -9,10 +9,12 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { ConstantesUseCase } from '../../application/usecase/constantes.use-case.js';
 import type { Constantes } from '../../domain/model/constantes.js';
 
+@ApiTags('Constantes')
 @Controller('constantes')
 export class ConstantesController {
   constructor(private readonly constantesUseCase: ConstantesUseCase) {}
@@ -29,12 +31,30 @@ export class ConstantesController {
 
   @Post()
   @HttpCode(200)
+  @ApiBody({
+    schema: {
+      example: {
+        consLlave: 'CONST_EJEMPLO',
+        consValor: '10',
+        consDescripcion: 'Descripción',
+      },
+    },
+  })
   async insertarConstante(@Body() constante: Constantes) {
     const id = await this.constantesUseCase.insertarConstante(constante);
     return ApiResponse.ok('Constante creada exitosamente', id, 1);
   }
 
   @Put(':id')
+  @ApiBody({
+    schema: {
+      example: {
+        consLlave: 'CONST_EJEMPLO',
+        consValor: '10',
+        consDescripcion: 'Descripción',
+      },
+    },
+  })
   async actualizarConstante(
     @Param('id', ParseIntPipe) id: number,
     @Body() constante: Constantes,
