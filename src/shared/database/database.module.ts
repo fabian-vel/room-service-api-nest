@@ -7,6 +7,8 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { Pool } from 'pg';
+import { TransactionManager } from '../domain/port/transaction-manager.js';
+import { enTransaccion } from './sql.util.js';
 
 export const PG_POOL = Symbol('PG_POOL');
 
@@ -26,8 +28,15 @@ export const PG_POOL = Symbol('PG_POOL');
           idleTimeoutMillis: 30 * 60 * 1000,
         }),
     },
+    {
+      provide: TransactionManager,
+      useFactory: (pool: Pool): TransactionManager => ({
+        ejecutar: (fn) => enTransaccion(pool, fn),
+      }),
+      inject: [PG_POOL],
+    },
   ],
-  exports: [PG_POOL],
+  exports: [PG_POOL, TransactionManager],
 })
 export class DatabaseModule implements OnModuleInit, OnApplicationShutdown {
   private readonly logger = new Logger(DatabaseModule.name);

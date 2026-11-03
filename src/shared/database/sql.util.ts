@@ -1,4 +1,5 @@
-import type { Pool, QueryResult, QueryResultRow } from 'pg';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import type { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 import { InternalServerErrorException } from '../domain/exception/internal-server-error.exception.js';
 
 // :nombre (no ::cast) -> $n, para reutilizar los .sql del API Java tal cual
@@ -15,6 +16,9 @@ export function toPositional(sql: string, params: Record<string, unknown>) {
   return { text, values: names.map((name) => params[name] ?? null) };
 }
 
+// conexión de la transacción en curso (ver PgTransactionManager); sin transacción se usa el pool
+const transaccionActual = new AsyncLocalStorage<PoolClient>();
+
 /** Ejecuta un .sql con parámetros nombrados; los errores de BD se reportan con mensajeError (como AdapterErrorUtil) */
 export async function ejecutarSql<T extends QueryResultRow>(
   pool: Pool,
@@ -24,8 +28,27 @@ export async function ejecutarSql<T extends QueryResultRow>(
 ): Promise<QueryResult<T>> {
   try {
     const { text, values } = toPositional(sql, params);
-    return await pool.query<T>(text, values);
+    return await (transaccionActual.getStore() ?? pool).query<T>(text, values);
   } catch (error) {
     throw new InternalServerErrorException(mensajeError, error);
+  }
+}
+
+/** Ejecuta fn en una transacción: todo ejecutarSql dentro de fn usa la misma conexión; si fn falla, ROLLBACK */
+export async function enTransaccion<T>(
+  pool: Pool,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const resultado = await transaccionActual.run(client, fn);
+    await client.query('COMMIT');
+    return resultado;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
   }
 }
