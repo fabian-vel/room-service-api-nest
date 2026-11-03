@@ -23,7 +23,9 @@ src/
     response/api-response.ts mismo formato de respuesta que el API Java
     global-exception.filter.ts
     util/sql-loader.util.ts  carga los .sql de resources/querys
-  modules/<contexto>/        (por migrar) domain · application · infrastructure · interfaces
+    database/sql.util.ts     ejecuta los .sql con parámetros nombrados (:param -> $n)
+  modules/<contexto>/        domain (model, port) · application (usecase) · infrastructure (persistence, mapper) · interfaces/http
+                             migrados: constantes, etiqueta, menu-categoria
 resources/querys/            archivos .sql
 ```
 
