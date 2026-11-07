@@ -6,7 +6,7 @@ import { loadSql } from '../../../../shared/util/sql-loader.util.js';
 import type {
   EstadoActualPedido,
   EstadoPedido,
-} from '../../domain/model/cambio-estado-contexto.js';
+} from '../../domain/model/estado-pedido.js';
 import { EstadoPedidoRepository } from '../../domain/port/estado-pedido.repository.js';
 
 const mapEstado = (row: Record<string, any>): EstadoPedido => ({

@@ -1,6 +1,5 @@
-import type { PedidoContexto } from '../../../domain/model/pedido-contexto.js';
-import type { DatosPedido, ItemPedido } from '../../../domain/model/pedido.js';
-import { CrearPedidoRule } from './crear-pedido.rule.js';
+import type { DatosPedido, ItemPedido } from '../../domain/model/pedido.js';
+import { armarPedido } from './armar-pedido.js';
 
 const dato = (meitId: number, meitPrecio: string | null): DatosPedido => ({
   haacHabitacion: '302',
@@ -10,32 +9,20 @@ const dato = (meitId: number, meitPrecio: string | null): DatosPedido => ({
   estadoPedidoId: 1,
 });
 
-const contexto = (
-  items: ItemPedido[],
-  datos: DatosPedido[],
-): PedidoContexto => ({
-  request: {
-    pedidoCriterio: { observacion: 'sin hielo', items },
-    haacId: 7,
-    listItemId: items.map((i) => i.meitId),
-  },
-  response: { listaDatosPedidos: datos },
-});
+const armar = (items: ItemPedido[], datos: DatosPedido[]) =>
+  armarPedido({ observacion: 'sin hielo', items }, 7, datos);
 
-describe('CrearPedidoRule', () => {
-  const regla = new CrearPedidoRule();
-
-  it('arma pedido y detalle con subtotales y total exactos', async () => {
+describe('armarPedido', () => {
+  it('arma pedido y detalle con subtotales y total exactos', () => {
     // 0.10 * 3 en punto flotante da 0.30000000000000004; en centavos queda exacto
-    const ctx = contexto(
+    const { pedido, detalles } = armar(
       [
         { meitId: 1, cantidad: 3 },
         { meitId: 2, cantidad: 3, observacion: 'tibio' },
       ],
       [dato(1, '12000.00'), dato(2, '0.10')],
     );
-    await regla.validar(ctx);
-    expect(ctx.request.pedido).toEqual({
+    expect(pedido).toEqual({
       haacId: 7,
       habitacion: '302',
       clienteNombre: 'Juan',
@@ -43,7 +30,7 @@ describe('CrearPedidoRule', () => {
       observacion: 'sin hielo',
       total: '36000.30',
     });
-    expect(ctx.request.detallePedidoList).toEqual([
+    expect(detalles).toEqual([
       {
         meitId: 1,
         cantidad: 3,
@@ -77,9 +64,7 @@ describe('CrearPedidoRule', () => {
       [dato(9, '100.00')],
       'Uno o más items no están disponibles',
     ],
-  ])('rechaza el pedido con %s', async (_, datos, mensaje) => {
-    await expect(
-      regla.validar(contexto([{ meitId: 1, cantidad: 1 }], datos)),
-    ).rejects.toThrow(mensaje);
+  ])('rechaza el pedido con %s', (_, datos, mensaje) => {
+    expect(() => armar([{ meitId: 1, cantidad: 1 }], datos)).toThrow(mensaje);
   });
 });

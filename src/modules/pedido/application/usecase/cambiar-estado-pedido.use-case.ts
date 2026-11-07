@@ -1,17 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
-import type { MotorReglas } from '../../../../shared/application/engine/motor-reglas.js';
+import { Injectable } from '@nestjs/common';
 import { BusinessException } from '../../../../shared/domain/exception/business.exception.js';
+import { NotFoundException } from '../../../../shared/domain/exception/not-found.exception.js';
 import { TransactionManager } from '../../../../shared/domain/port/transaction-manager.js';
-import type { CambioEstadoContexto } from '../../domain/model/cambio-estado-contexto.js';
+import { EstadoPedidoRepository } from '../../domain/port/estado-pedido.repository.js';
 import { PedidoNotificationUseCase } from './pedido-notification.use-case.js';
-
-export const MOTOR_REGLAS_ESTADO_PEDIDO = Symbol('MOTOR_REGLAS_ESTADO_PEDIDO');
-
-const REGLAS = [
-  'CONSULTAR_ESTADO_PEDIDO',
-  'VALIDAR_TRANSICION_ESTADO',
-  'ACTUALIZAR_ESTADO_PEDIDO',
-];
+import { validarTransicion } from './transicion-estado.js';
 
 export interface CambioEstadoResponse {
   pediId: number;
@@ -22,8 +15,7 @@ export interface CambioEstadoResponse {
 @Injectable()
 export class CambiarEstadoPedidoUseCase {
   constructor(
-    @Inject(MOTOR_REGLAS_ESTADO_PEDIDO)
-    private readonly motorReglas: MotorReglas<CambioEstadoContexto>,
+    private readonly estadoPedidoRepository: EstadoPedidoRepository,
     private readonly transactionManager: TransactionManager,
     private readonly pedidoNotificationUseCase: PedidoNotificationUseCase,
   ) {}
@@ -34,26 +26,31 @@ export class CambiarEstadoPedidoUseCase {
   ): Promise<CambioEstadoResponse> {
     if (!Number.isInteger(espeIdDestino))
       throw new BusinessException('El estado del pedido es obligatorio');
-    const contexto: CambioEstadoContexto = {
-      request: { pediId, espeIdDestino: espeIdDestino as number },
-      response: {},
-    };
 
     // en una transacción: el pedido queda bloqueado mientras se valida y actualiza,
     // así dos personas no pueden cambiarlo a la vez desde estados distintos
-    await this.transactionManager.ejecutar(() =>
-      this.motorReglas.aplicar(REGLAS, contexto),
-    );
-
-    const { actual, destino } = contexto.response;
-    this.pedidoNotificationUseCase.publishStatusChanged(
-      pediId,
-      actual!.haacId,
-      {
-        espeId: destino!.espeId,
-        espeNombre: destino!.espeNombre,
+    const { actual, destino } = await this.transactionManager.ejecutar(
+      async () => {
+        const actual =
+          await this.estadoPedidoRepository.consultarEstadoActual(pediId);
+        if (!actual) throw new NotFoundException('Pedido no encontrado');
+        const destino = await this.estadoPedidoRepository.consultarEstado(
+          espeIdDestino as number,
+        );
+        if (!destino) throw new BusinessException('Estado de pedido no válido');
+        validarTransicion(actual.estado, destino);
+        await this.estadoPedidoRepository.actualizarEstado(
+          pediId,
+          destino.espeId,
+        );
+        return { actual, destino };
       },
     );
-    return { pediId, espeId: destino!.espeId, espeNombre: destino!.espeNombre };
+
+    this.pedidoNotificationUseCase.publishStatusChanged(pediId, actual.haacId, {
+      espeId: destino.espeId,
+      espeNombre: destino.espeNombre,
+    });
+    return { pediId, espeId: destino.espeId, espeNombre: destino.espeNombre };
   }
 }

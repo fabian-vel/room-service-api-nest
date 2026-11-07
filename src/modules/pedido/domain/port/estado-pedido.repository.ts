@@ -1,7 +1,7 @@
 import type {
   EstadoActualPedido,
   EstadoPedido,
-} from '../model/cambio-estado-contexto.js';
+} from '../model/estado-pedido.js';
 
 // clase abstracta (no interface) para que sirva de token de inyección en Nest
 export abstract class EstadoPedidoRepository {

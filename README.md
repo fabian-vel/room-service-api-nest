@@ -36,9 +36,9 @@ infrastructure            adaptadores de los puertos: PostgreSQL (persistence) y
 
 Cada módulo registra `{ provide: Puerto, useClass: Adaptador }`, así los casos de uso no conocen la base de datos.
 
-### Motor de reglas
+### Casos de uso
 
-Crear pedido ejecuta, en orden y dentro de una transacción, las reglas `INFERIR_DATOS_PEDIDO`, `CREAR_PEDIDO`, `INSERTAR_PEDIDO` e `INSERTAR_DETALLE_PEDIDO` (`shared/application/engine/motor-reglas.ts`). La primera que falla detiene el resto y revierte todo. Para agregar una regla: implementar `ReglaNegocio<T>`, registrarla en el módulo y agregar su id a la lista del caso de uso.
+Cada caso de uso es lineal: llama a los puertos en orden y las validaciones de negocio son funciones puras, probadas sin BD (`armarPedido`, `validarTransicion`). Cuando hay varias escrituras van dentro de `TransactionManager.ejecutar`: la primera que falla revierte todo. Por ejemplo, crear pedido consulta precios, arma el pedido, inserta pedido y detalle, y notifica por WebSocket después del COMMIT.
 
 ---
 
@@ -49,7 +49,6 @@ src/
   main.ts / app.setup.ts       arranque y configuración global (prefijo, errores, CORS, WebSocket, Swagger)
   app.module.ts                registra los módulos
   shared/                      transversal
-    application/               MotorReglas y ReglaNegocio
     database/                  pool de PostgreSQL, ejecutarSql (:param -> $n) y transacciones
     domain/                    excepciones, Pagina, puerto TransactionManager
     security/                  JwtService, JwtAuthGuard (global), @Public(), @Claims(), PasswordEncoder
@@ -60,7 +59,7 @@ src/
     constantes/  etiqueta/  menu-categoria/     maestros
     menu-item/  items-especiales/                menú de la app
     consulta-pedido/           consultas de pedidos (app, tablero y lista paginada)
-    pedido/                    crear pedido (motor de reglas) y WebSocket de cocina
+    pedido/                    crear pedido, cambiar estado y WebSocket de cocina
 resources/querys/              archivos .sql
 test/                          pruebas e2e contra la BD
 ```
