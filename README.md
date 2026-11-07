@@ -2,23 +2,21 @@
 
 API REST y WebSocket de **HotelGuest**: los huéspedes piden del restaurante a su habitación desde la app móvil y la cocina gestiona los pedidos desde el front web.
 
-Es la migración a NestJS + TypeScript del API Java `room-service-api` (Spring WebFlux). Mantiene el mismo contrato (rutas `/api/v1/...`, formato de respuestas y errores, tokens JWT compatibles), así que el front y la app solo cambian la URL base.
-
 ---
 
 ## Stack
 
-| Tecnología | Uso | Reemplaza en Java |
-|---|---|---|
-| Node.js 22 + TypeScript | Lenguaje y runtime | Java 21 |
-| NestJS 12 | Framework, inyección de dependencias | Spring Boot |
-| `async/await` | Código no bloqueante | WebFlux (`Mono`/`Flux`) |
-| `pg` (node-postgres) | Acceso a PostgreSQL con SQL propio | R2DBC |
-| `jsonwebtoken` (HS384) | Tokens JWT | jjwt |
-| `bcryptjs` | Contraseñas de empleados | BCryptPasswordEncoder |
-| `@nestjs/websockets` + `ws` | WebSocket de cocina | WebFlux WebSocket |
-| `@nestjs/swagger` | Documentación (Swagger UI) | SpringDoc OpenAPI |
-| Vitest + Supertest | Pruebas unitarias y e2e | JUnit |
+| Tecnología | Uso |
+|---|---|
+| Node.js 22 + TypeScript | Lenguaje y runtime |
+| NestJS 12 | Framework, inyección de dependencias |
+| `pg` (node-postgres) | Acceso a PostgreSQL con SQL propio |
+| PostgreSQL 18 | Base de datos |
+| `jsonwebtoken` (HS384) | Tokens JWT |
+| `bcryptjs` | Contraseñas de empleados |
+| `@nestjs/websockets` + `ws` | WebSocket de cocina |
+| `@nestjs/swagger` | Documentación (Swagger UI) |
+| Vitest + Supertest | Pruebas unitarias y e2e |
 
 ---
 
@@ -63,7 +61,7 @@ src/
     menu-item/  items-especiales/                menú de la app
     consulta-pedido/           consultas de pedidos (app, tablero y lista paginada)
     pedido/                    crear pedido (motor de reglas) y WebSocket de cocina
-resources/querys/              archivos .sql (los mismos del API Java)
+resources/querys/              archivos .sql
 test/                          pruebas e2e contra la BD
 ```
 
@@ -103,7 +101,7 @@ Variables de entorno (en desarrollo, archivo `.env` en la raíz; ver `.env.examp
 | `PORT` | Puerto HTTP y WebSocket | `8084` |
 | `DB_HOST`, `DB_PORT`, `DB_NAME` | PostgreSQL | —, `5432`, — |
 | `DB_USER`, `DB_PASSWORD` | Credenciales de la BD | — |
-| `JWT_SECRET` | Secreto de los tokens (mínimo 48 caracteres; el mismo del API Java para que los tokens sirvan en ambos) | — |
+| `JWT_SECRET` | Secreto de los tokens (mínimo 48 caracteres) | — |
 
 > `JWT_SECRET` va entre comillas en `.env`: contiene `#`, que sin comillas se toma como comentario.
 
@@ -140,13 +138,3 @@ npm run lint
 | `SqlLoadException` (`.sql` no encontrado) | 500 | `CONFIG_ERROR` |
 | Errores de Nest (token, ruta inexistente, id no numérico) | su status | `HTTP_ERROR` |
 
----
-
-## Diferencias con el API Java
-
-- Crear pedido guarda pedido y detalle en una transacción, rechaza items inactivos (en Java se cobraban a 0) y valida cantidades.
-- Los campos opcionales vacíos funcionan al crear o editar maestros (en Java daban 500 por `bind(null)`).
-- `POST /etiquetas/consulta` funciona cuando hay resultados (en Java daba 500 por una columna inexistente en el mapeo).
-- Varios casos que en Java terminaban en 500 responden 400, 403, 404 o 422 con su mensaje.
-- El 401 trae el JSON de error estándar (en Java venía vacío); las fechas salen en ISO UTC (`...Z`).
-- No se migró `/ws/orders`: en Java nunca funcionó y no lo usa ningún cliente.

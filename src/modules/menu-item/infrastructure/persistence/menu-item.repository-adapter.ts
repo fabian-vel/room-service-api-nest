@@ -28,7 +28,7 @@ export class MenuItemRepositoryAdapter implements MenuItemRepository {
       meitImagenUrl: row.meit_imagen_url ?? null,
       mecaId: row.meca_id,
       mecaParentId: row.meca_parent_id ?? null,
-      // la consulta no trae llave ni estado de la etiqueta (en Java también salían en null)
+      // la consulta no trae llave ni estado de la etiqueta
       etiquetas: (row.etiquetas ?? []).map(
         (etiqueta: Partial<Etiqueta>): Etiqueta => ({
           etiqId: etiqueta.etiqId ?? null,

@@ -11,7 +11,7 @@ import { EtiquetaModule } from './modules/etiqueta/etiqueta.module.js';
 import { MenuCategoriaModule } from './modules/menu-categoria/menu-categoria.module.js';
 
 @Module({
-  // aquí se registran los módulos de cada contexto a medida que se migran
+  // un módulo por contexto (ver README)
   imports: [
     DatabaseModule,
     SecurityModule,

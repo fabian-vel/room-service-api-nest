@@ -73,7 +73,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   catch(error: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
-    const path = request.originalUrl.split('?')[0]; // path completo, sin query (como el API Java)
+    const path = request.originalUrl.split('?')[0]; // path completo, sin query
     const response = ctx.getResponse<Response>();
     if (response.headersSent) return;
 

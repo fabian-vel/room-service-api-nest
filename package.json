@@ -1,7 +1,7 @@
 {
   "name": "room-service-api-nest",
   "version": "0.0.1",
-  "description": "API Room Service en NestJS (migración del API Java)",
+  "description": "API de HotelGuest: pedidos a la habitación, menú y maestros",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

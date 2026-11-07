@@ -30,7 +30,7 @@ describe('LoginUseCase', () => {
     ...cambios,
   });
 
-  it('genera un token con los mismos claims del API Java', async () => {
+  it('genera un token con habitación, cliente y accesoId', async () => {
     const vigente = acceso();
     repo.consultaHabitacionAcceso.mockResolvedValue(vigente);
     const { token, expiracion } = await useCase.ejecutar(request);

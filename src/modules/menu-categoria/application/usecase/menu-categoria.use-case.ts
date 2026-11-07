@@ -89,7 +89,7 @@ function categoria(
   mecaImagenUrl: string | null,
   mecaParentId: number | null,
 ): MenuCategoria {
-  // llave y estado no vienen en esta consulta (en Java también salen en null)
+  // llave y estado no vienen en esta consulta
   return {
     mecaId,
     mecaLlaveMst: null,

@@ -18,7 +18,7 @@ export class ItemsEspecialesUseCase {
   ) {}
 
   async consultarItemsEspeciales(): Promise<ItemsEspeciales> {
-    // las tres consultas en paralelo, como el Mono.zip de Java
+    // las tres consultas en paralelo
     const [itemsMasPedidos, itemsMasRecientes, itemsRecomendadosChef] =
       await Promise.all([
         this.itemsEspecialesRepository.consultarItemsMasPedidos(CANTIDAD),

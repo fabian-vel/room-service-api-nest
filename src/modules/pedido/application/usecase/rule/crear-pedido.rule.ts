@@ -30,7 +30,7 @@ export class CrearPedidoRule implements ReglaNegocio<PedidoContexto> {
         'Uno o más items no tienen precio registrado',
       );
     }
-    // en Java un item inactivo o inexistente quedaba con precio 0; aquí se rechaza el pedido
+    // un item inactivo o inexistente no tiene precio: se rechaza el pedido en vez de cobrarlo en 0
     const precios = new Map(
       datosPedidos.map((dato) => [dato.meitId, aCentavos(dato.meitPrecio!)]),
     );

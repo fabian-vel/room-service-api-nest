@@ -19,7 +19,7 @@ export class ConsultaPedidoController {
 
   @Get('consulta-pedidos')
   async consultarPedidoPorUsuario(@Claims() claims: ClaimsToken) {
-    // solo los tokens de habitación traen accesoId (en Java un token de empleado terminaba en 500)
+    // solo los tokens de habitación traen accesoId
     if (!('accesoId' in claims))
       throw new ForbiddenException('El token no corresponde a una habitación');
     const pedidos = await this.consultaPedidoUseCase.consultarPedidoPorUsuario(
@@ -131,7 +131,7 @@ function fecha(
 ): string | undefined {
   const valor = param(query, nombre);
   if (valor === undefined) return undefined;
-  // YYYY-MM-DD y que la fecha exista (rechaza 2026-02-30), como LocalDate.parse
+  // YYYY-MM-DD y que la fecha exista (rechaza 2026-02-30)
   const valida =
     /^\d{4}-\d{2}-\d{2}$/.test(valor) &&
     new Date(`${valor}T00:00:00Z`).toISOString().startsWith(valor);

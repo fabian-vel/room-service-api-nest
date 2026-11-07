@@ -5,10 +5,10 @@ import type { WebSocket } from 'ws';
 import { JwtService } from '../../../../shared/security/jwt.service.js';
 import { PedidoNotificationUseCase } from '../../application/usecase/pedido-notification.use-case.js';
 
-// 1003 = NOT_ACCEPTABLE, el mismo código con el que cerraba el API Java
+// 1003 = NOT_ACCEPTABLE
 const CIERRE_TOKEN_INVALIDO = 1003;
 
-/** ws://host:puerto/ws/pedidos?token=<jwt>: envía a cocina cada evento de pedido (PedidoWebSocketHandler en Java) */
+/** ws://host:puerto/ws/pedidos?token=<jwt>: envía a cocina cada evento de pedido */
 @WebSocketGateway({ path: '/ws/pedidos' })
 export class PedidoGateway implements OnGatewayConnection {
   private readonly logger = new Logger(PedidoGateway.name);

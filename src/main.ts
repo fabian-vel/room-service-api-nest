@@ -12,7 +12,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   setupApp(app);
 
-  // Swagger UI en /swagger-ui (reemplaza a SpringDoc); el botón "Authorize" recibe el JWT
+  // Swagger UI en /swagger-ui; el botón "Authorize" recibe el JWT
   const documento = new DocumentBuilder()
     .setTitle('Room Service API')
     .setDescription(

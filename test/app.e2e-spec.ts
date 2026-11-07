@@ -22,7 +22,7 @@ describe('App (e2e)', () => {
     await app.init(); // conecta a la BD; falla si no responde
   });
 
-  it('responde errores con el mismo formato del API Java', async () => {
+  it('responde errores con el formato estándar', async () => {
     const res = await request(app.getHttpServer())
       .get('/api/v1/no-existe')
       .expect(404);

@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import jwt from 'jsonwebtoken';
 
-// jjwt (API Java) firma con HS384 porque el secreto tiene 384 bits; se usa el mismo para
-// que los tokens sirvan en ambos APIs mientras conviven
+// HS384: el secreto tiene 384 bits
 const ALGORITMO = 'HS384';
 
 export interface ClaimsHabitacion {

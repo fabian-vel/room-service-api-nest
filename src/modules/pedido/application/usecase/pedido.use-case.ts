@@ -36,7 +36,7 @@ export class PedidoUseCase {
       response: { listaDatosPedidos: [] },
     };
 
-    // pedido y detalle en una sola transacción (en Java un fallo en el detalle dejaba el pedido sin items)
+    // pedido y detalle en una sola transacción: si falla el detalle no queda un pedido sin items
     await this.transactionManager.ejecutar(() =>
       this.motorReglas.aplicar(REGLAS, contexto),
     );

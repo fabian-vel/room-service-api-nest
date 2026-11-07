@@ -5,8 +5,8 @@ import { BcryptPasswordEncoder } from '../../../../shared/security/password-enco
 import type { EmpleadoRepository } from '../../domain/port/empleado.repository.js';
 import { LoginEmpleadoUseCase } from './login-empleado.use-case.js';
 
-// hash generado por BCryptPasswordEncoder de Spring (API Java) para 'clave-de-prueba'
-const HASH_SPRING =
+// hash bcrypt $2a$ (el formato de las contraseñas en tbl_empleados) para 'clave-de-prueba'
+const HASH_BCRYPT =
   '$2a$10$RRT3C3z4B6RseWMQ3KLKqe9WQxpl5EBb9kz0qG2z6zNufUiaFyMxO';
 
 describe('LoginEmpleadoUseCase', () => {
@@ -21,12 +21,12 @@ describe('LoginEmpleadoUseCase', () => {
   const empleado = {
     emplId: 1,
     emplUsuario: 'cocina1',
-    emplPassword: HASH_SPRING,
+    emplPassword: HASH_BCRYPT,
     emplNombre: 'Cocina',
     emplRol: 'COCINA',
   };
 
-  it('valida el hash de Spring y genera un token de 8 horas con usuario, nombre y rol', async () => {
+  it('valida el hash bcrypt y genera un token de 8 horas con usuario, nombre y rol', async () => {
     repo.findByUsuario.mockResolvedValue(empleado);
     const response = await useCase.ejecutar({
       usuario: 'cocina1',

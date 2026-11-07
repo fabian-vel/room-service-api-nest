@@ -10,7 +10,7 @@ import type { Request } from 'express';
 import { IS_PUBLIC } from './public.decorator.js';
 import { JwtService } from './jwt.service.js';
 
-/** Equivale a JwtAuthenticationFilter: exige "Bearer <token>" válido salvo en endpoints @Public() */
+/** Exige "Bearer <token>" válido en todos los endpoints salvo los @Public() */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   private readonly logger = new Logger(JwtAuthGuard.name);
@@ -39,7 +39,7 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      // los claims quedan disponibles para los controllers (lo que hacía TokenUtil)
+      // los claims quedan disponibles para los controllers (@Claims())
       request.user = this.jwtService.validarToken(authHeader.substring(7));
       return true;
     } catch (error) {

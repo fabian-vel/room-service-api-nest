@@ -6,7 +6,7 @@ import { GlobalExceptionFilter } from './shared/global-exception.filter.js';
 export function setupApp(app: INestApplication) {
   app.setGlobalPrefix('api/v1');
   app.useGlobalFilters(new GlobalExceptionFilter());
-  // en desarrollo; restringir en producción (igual que el API Java)
+  // en desarrollo; restringir en producción
   app.enableCors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

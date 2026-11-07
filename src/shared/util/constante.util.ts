@@ -10,7 +10,7 @@ export function getConstante(
   return valor;
 }
 
-/** Equivale a ConstanteUtil.getAsShort; en Java un valor no numérico terminaba en 500 */
+/** Valor numérico de una constante; 422 si no existe o no es un número */
 export function getConstanteNumero(
   constantes: Map<string, string>,
   llave: string,

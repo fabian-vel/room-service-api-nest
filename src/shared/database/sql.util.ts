@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import type { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 import { InternalServerErrorException } from '../domain/exception/internal-server-error.exception.js';
 
-// :nombre (no ::cast) -> $n, para reutilizar los .sql del API Java tal cual
+// :nombre (no ::cast) -> $n: los .sql usan parámetros nombrados y pg solo entiende $1, $2...
 const NAMED_PARAM = /(?<![:\w]):([A-Za-z_]\w*)/g;
 
 export function toPositional(sql: string, params: Record<string, unknown>) {
@@ -16,10 +16,10 @@ export function toPositional(sql: string, params: Record<string, unknown>) {
   return { text, values: names.map((name) => params[name] ?? null) };
 }
 
-// conexión de la transacción en curso (ver PgTransactionManager); sin transacción se usa el pool
+// conexión de la transacción en curso (ver enTransaccion); sin transacción se usa el pool
 const transaccionActual = new AsyncLocalStorage<PoolClient>();
 
-/** Ejecuta un .sql con parámetros nombrados; los errores de BD se reportan con mensajeError (como AdapterErrorUtil) */
+/** Ejecuta un .sql con parámetros nombrados; los errores de BD se reportan con mensajeError */
 export async function ejecutarSql<T extends QueryResultRow>(
   pool: Pool,
   sql: string,

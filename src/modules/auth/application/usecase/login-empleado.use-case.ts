@@ -25,7 +25,7 @@ export class LoginEmpleadoUseCase {
     );
     if (!empleado) throw new NotFoundException('Credenciales inválidas');
 
-    // una contraseña que no es texto se rechaza igual que una incorrecta (en Java terminaba en 500)
+    // una contraseña que no es texto se rechaza igual que una incorrecta
     const valida =
       typeof request.password === 'string' &&
       (await this.passwordEncoder.matches(

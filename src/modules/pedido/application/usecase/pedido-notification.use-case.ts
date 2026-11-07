@@ -7,7 +7,7 @@ import {
 
 const EVENTO = 'pedido';
 
-/** Equivale al Sinks.many().multicast() de Java: publica eventos de pedidos a quien esté suscrito (WebSocket) */
+/** Publica los eventos de pedidos a quien esté suscrito (WebSocket de cocina) */
 @Injectable()
 export class PedidoNotificationUseCase {
   private readonly emitter = new EventEmitter();

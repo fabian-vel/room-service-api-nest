@@ -34,7 +34,7 @@ const REGLAS = [
     PedidoNotificationUseCase,
     PedidoGateway,
     ...REGLAS,
-    // el motor recibe todas las reglas, como el List<ReglaNegocio> que Spring inyectaba en Java
+    // el motor recibe todas las reglas del módulo
     {
       provide: MOTOR_REGLAS_PEDIDO,
       useFactory: (...reglas: ReglaNegocio<PedidoContexto>[]) =>

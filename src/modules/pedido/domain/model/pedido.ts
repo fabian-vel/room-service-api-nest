@@ -1,4 +1,4 @@
-// montos como texto decimal ("24000.00"), igual que BigDecimal en Java y numeric en la BD
+// montos como texto decimal ("24000.00"), igual que numeric en la BD
 export interface Pedido {
   haacId: number;
   habitacion: string;

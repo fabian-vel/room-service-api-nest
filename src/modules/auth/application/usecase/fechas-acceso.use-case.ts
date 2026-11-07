@@ -16,7 +16,6 @@ export class FechasAccesoUseCase {
   ) {}
 
   async consultaFechaAcceso(haacId: unknown): Promise<FechasAccesoResponse> {
-    // en Java un haacId nulo terminaba en 500 y un acceso inexistente en una respuesta vacía
     if (!Number.isInteger(haacId))
       throw new BusinessException('El haacId no puede ser nulo');
     const acceso = await this.habitacionAccesoRepository.consultaFechasAcceso(

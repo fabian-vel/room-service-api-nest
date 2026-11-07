@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
 
-// clase abstracta (como PasswordEncoder de Spring) para poder reemplazarla en pruebas
+// clase abstracta para poder reemplazarla en pruebas
 export abstract class PasswordEncoder {
   abstract matches(
     rawPassword: string,
@@ -9,7 +9,7 @@ export abstract class PasswordEncoder {
   ): Promise<boolean>;
 }
 
-/** Lee los hash $2a$ que generó BCryptPasswordEncoder en el API Java */
+/** Valida contraseñas contra hash bcrypt ($2a$, el formato de tbl_empleados) */
 @Injectable()
 export class BcryptPasswordEncoder implements PasswordEncoder {
   matches(rawPassword: string, encodedPassword: string): Promise<boolean> {

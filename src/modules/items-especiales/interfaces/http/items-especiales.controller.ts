@@ -12,7 +12,6 @@ export class ItemsEspecialesController {
 
   @Get()
   async consultarItemsEspeciales() {
-    // mensaje vacío y size 1, como en el API Java
     return ApiResponse.ok(
       '',
       await this.itemsEspecialesUseCase.consultarItemsEspeciales(),
