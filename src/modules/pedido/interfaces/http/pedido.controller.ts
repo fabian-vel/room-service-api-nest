@@ -3,19 +3,26 @@ import {
   Controller,
   ForbiddenException,
   HttpCode,
+  Param,
+  ParseIntPipe,
   Post,
+  Put,
 } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { Claims } from '../../../../shared/security/claims.decorator.js';
 import type { Claims as ClaimsToken } from '../../../../shared/security/jwt.service.js';
+import { CambiarEstadoPedidoUseCase } from '../../application/usecase/cambiar-estado-pedido.use-case.js';
 import { PedidoUseCase } from '../../application/usecase/pedido.use-case.js';
 import type { PedidoCriterio } from '../../domain/model/pedido.js';
 
 @ApiTags('Pedidos')
 @Controller('pedido')
 export class PedidoController {
-  constructor(private readonly pedidoUseCase: PedidoUseCase) {}
+  constructor(
+    private readonly pedidoUseCase: PedidoUseCase,
+    private readonly cambiarEstadoPedidoUseCase: CambiarEstadoPedidoUseCase,
+  ) {}
 
   @Post()
   @HttpCode(200)
@@ -41,5 +48,24 @@ export class PedidoController {
       claims.accesoId,
     );
     return ApiResponse.ok('Pedido creado exitosamente', mensaje, 1);
+  }
+
+  @Put(':id/estado')
+  @ApiBody({ schema: { example: { estadoPedido: 2 } } })
+  async cambiarEstado(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { estadoPedido?: number },
+    @Claims() claims: ClaimsToken,
+  ) {
+    // lo cambian los empleados (cocina); un token de habitación no trae rol
+    if (!('rol' in claims))
+      throw new ForbiddenException(
+        'Solo un empleado puede cambiar el estado del pedido',
+      );
+    const estado = await this.cambiarEstadoPedidoUseCase.cambiarEstado(
+      id,
+      body?.estadoPedido,
+    );
+    return ApiResponse.ok('Estado del pedido actualizado', estado, 1);
   }
 }

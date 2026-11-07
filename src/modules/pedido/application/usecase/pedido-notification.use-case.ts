@@ -29,4 +29,18 @@ export class PedidoNotificationUseCase {
       eventDate: new Date().toISOString(),
     });
   }
+
+  publishStatusChanged(
+    pedidoId: number,
+    haacId: number,
+    estado: { espeId: number; espeNombre: string },
+  ): void {
+    this.publish({
+      type: PedidoEventType.STATUS_CHANGED,
+      pedidoId,
+      haacId,
+      eventDate: new Date().toISOString(),
+      payload: estado,
+    });
+  }
 }
