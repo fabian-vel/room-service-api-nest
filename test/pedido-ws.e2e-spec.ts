@@ -68,4 +68,34 @@ describe('WebSocket /ws/pedidos (e2e)', () => {
       timeout: 2000,
     });
   });
+
+  it('con token de habitación solo recibe los eventos de sus pedidos', async () => {
+    const tokenHabitacion = app
+      .get(JwtService)
+      .generarToken(
+        { sub: '302', clienteNombre: 'e2e', accesoId: 7 },
+        new Date(Date.now() + 60_000),
+      );
+    const ws = new WebSocket(`${url}?token=${tokenHabitacion}`);
+    await new Promise((resolve) => ws.on('open', resolve));
+    const recibidos: { pedidoId: number }[] = [];
+    ws.on('message', (data) => recibidos.push(JSON.parse(String(data))));
+
+    const notificaciones = app.get(PedidoNotificationUseCase);
+    const estado = { espeId: 2, espeNombre: 'En preparación' };
+    notificaciones.publishCreated(1); // sin habitación: solo para cocina
+    notificaciones.publishStatusChanged(2, 8, estado); // otra habitación
+    notificaciones.publishStatusChanged(3, 7, estado); // la suya
+
+    await vi.waitFor(() => expect(recibidos).toHaveLength(1), {
+      timeout: 2000,
+    });
+    expect(recibidos[0]).toMatchObject({
+      type: 'STATUS_CHANGED',
+      pedidoId: 3,
+      payload: estado,
+    });
+    ws.close();
+    await cierre(ws);
+  });
 });

@@ -86,7 +86,7 @@ Todos bajo `/api/v1` y con `Authorization: Bearer <token>`, salvo los de `auth`.
 | GET | `/consulta-pedidos-fecha-actual` | Tablero de cocina |
 | GET | `/pedidos` | Lista paginada con filtros opcionales |
 
-**WebSocket:** `ws://<host>:<puerto>/ws/pedidos?token=<jwt>` envía a cocina cada evento de pedido (`{"type":"CREATED","pedidoId":...}`). Sin token o con token inválido cierra con el código 1003.
+**WebSocket:** `ws://<host>:<puerto>/ws/pedidos?token=<jwt>` con token de empleado envía cada evento de pedido (`{"type":"CREATED","pedidoId":...}`); con token de habitación, solo los de sus pedidos (`STATUS_CHANGED`, `CANCELLED`). Sin token o con token inválido cierra con el código 1003.
 
 **Swagger UI:** `http://localhost:8084/swagger-ui` (JSON en `/swagger-ui-json`). Usar "Authorize" con el token.
 
