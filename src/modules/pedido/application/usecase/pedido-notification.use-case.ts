@@ -30,6 +30,20 @@ export class PedidoNotificationUseCase {
     });
   }
 
+  publishCancelled(
+    pedidoId: number,
+    haacId: number,
+    estado: { espeId: number; espeNombre: string },
+  ): void {
+    this.publish({
+      type: PedidoEventType.CANCELLED,
+      pedidoId,
+      haacId,
+      eventDate: new Date().toISOString(),
+      payload: estado,
+    });
+  }
+
   publishStatusChanged(
     pedidoId: number,
     haacId: number,

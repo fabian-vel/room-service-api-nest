@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CambiarEstadoPedidoUseCase } from './application/usecase/cambiar-estado-pedido.use-case.js';
+import { CancelarPedidoUseCase } from './application/usecase/cancelar-pedido.use-case.js';
 import { ConsultaPedidoUseCase } from './application/usecase/consulta-pedido.use-case.js';
 import { PedidoNotificationUseCase } from './application/usecase/pedido-notification.use-case.js';
 import { PedidoUseCase } from './application/usecase/pedido.use-case.js';
@@ -16,6 +17,7 @@ import { PedidoGateway } from './interfaces/ws/pedido.gateway.js';
   providers: [
     PedidoUseCase,
     CambiarEstadoPedidoUseCase,
+    CancelarPedidoUseCase,
     ConsultaPedidoUseCase,
     PedidoNotificationUseCase,
     PedidoGateway,

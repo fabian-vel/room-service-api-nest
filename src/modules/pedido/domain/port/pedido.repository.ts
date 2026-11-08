@@ -22,5 +22,7 @@ export abstract class PedidoRepository {
   ): Promise<EstadoActualPedido | null>;
   /** null si el estado no existe o está inactivo */
   abstract consultarEstado(espeId: number): Promise<EstadoPedido | null>;
+  /** Por espe_llave_mst (ej. ESTA_PEDI_CANC); null si no existe o está inactivo */
+  abstract consultarEstadoPorLlave(llave: string): Promise<EstadoPedido | null>;
   abstract actualizarEstado(pediId: number, espeId: number): Promise<number>;
 }

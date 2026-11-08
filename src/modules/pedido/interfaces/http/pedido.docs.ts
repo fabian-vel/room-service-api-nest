@@ -66,4 +66,23 @@ export const PedidoDocs = {
           'Estado obligatorio o no válido, o transición no permitida',
       }),
     ),
+
+  cancelar: () =>
+    applyDecorators(
+      ApiOperation({
+        summary: 'Cancela un pedido de la habitación (huésped)',
+        description:
+          'Solo el pedido de la habitación del token y solo si está pendiente. Avisa a la cocina por WebSocket (CANCELLED).',
+      }),
+      ApiBadRequestResponse({ description: 'El id no es numérico' }),
+      ApiForbiddenResponse({
+        description: 'El token no corresponde a una habitación',
+      }),
+      ApiNotFoundResponse({
+        description: 'Pedido no encontrado o de otra habitación',
+      }),
+      ApiUnprocessableEntityResponse({
+        description: 'El pedido ya no está pendiente',
+      }),
+    ),
 };

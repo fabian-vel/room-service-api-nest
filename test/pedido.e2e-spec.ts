@@ -147,4 +147,28 @@ describe('Crear pedido (e2e)', () => {
     ).rejects.toThrow('falla después de insertar');
     expect(await maxPediId()).toBe(antes);
   });
+
+  it('el huésped cancela su pedido pendiente una sola vez', async () => {
+    await request(app.getHttpServer())
+      .post('/api/v1/pedido')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ items: [{ meitId: items[0].meit_id, cantidad: 1 }] })
+      .expect(200);
+    const pediId = await maxPediId();
+
+    const res = await request(app.getHttpServer())
+      .put(`/api/v1/pedido/${pediId}/cancelar`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(res.body).toMatchObject({
+      message: 'Pedido cancelado',
+      data: { pediId, espeNombre: 'Cancelado' },
+    });
+
+    // ya cancelado no está pendiente
+    await request(app.getHttpServer())
+      .put(`/api/v1/pedido/${pediId}/cancelar`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(422);
+  });
 });

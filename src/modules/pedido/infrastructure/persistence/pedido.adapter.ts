@@ -33,6 +33,9 @@ export class PedidoAdapter implements PedidoRepository {
   private readonly sqlEstadoDestino = loadSql(
     'querys/consultar-estado-pedido-destino.sql',
   );
+  private readonly sqlEstadoPorLlave = loadSql(
+    'querys/consultar-estado-pedido-llave.sql',
+  );
   private readonly sqlActualizarEstado = loadSql(
     'querys/actualizar-estado-pedido.sql',
   );
@@ -118,6 +121,16 @@ export class PedidoAdapter implements PedidoRepository {
       this.pool,
       this.sqlEstadoDestino,
       { espeId },
+      'Error al consultar el estado de pedido en BD',
+    );
+    return rows.length ? mapEstado(rows[0]) : null;
+  }
+
+  async consultarEstadoPorLlave(llave: string): Promise<EstadoPedido | null> {
+    const { rows } = await ejecutarSql(
+      this.pool,
+      this.sqlEstadoPorLlave,
+      { llave },
       'Error al consultar el estado de pedido en BD',
     );
     return rows.length ? mapEstado(rows[0]) : null;
