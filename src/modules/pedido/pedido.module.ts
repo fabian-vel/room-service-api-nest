@@ -20,7 +20,6 @@ import { PedidoGateway } from './interfaces/ws/pedido.gateway.js';
     CambiarEstadoPedidoUseCase,
     PedidoNotificationUseCase,
     PedidoGateway,
-    // cada puerto se resuelve con su adaptador de PostgreSQL
     {
       provide: InferirDatosPedidoRepository,
       useClass: InferirDatosPedidoAdapter,

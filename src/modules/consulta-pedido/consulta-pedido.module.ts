@@ -6,7 +6,6 @@ import { ConsultaPedidoController } from './interfaces/http/consulta-pedido.cont
 
 @Module({
   controllers: [ConsultaPedidoController],
-  // el puerto ConsultaPedidoRepository se resuelve con el adaptador de PostgreSQL
   providers: [
     ConsultaPedidoUseCase,
     { provide: ConsultaPedidoRepository, useClass: ConsultaPedidoAdapter },

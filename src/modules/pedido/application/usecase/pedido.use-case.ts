@@ -23,7 +23,6 @@ export class PedidoUseCase {
   async crearPedido(criterio: PedidoCriterio, haacId: number): Promise<string> {
     validarCriterio(criterio);
 
-    // pedido y detalle en una sola transacción: si falla el detalle no queda un pedido sin items
     const pediId = await this.transactionManager.ejecutar(async () => {
       const datos = await this.inferirDatosPedidoRepository.inferirDatosPedidos(
         haacId,
@@ -37,13 +36,11 @@ export class PedidoUseCase {
       return pediId;
     });
 
-    // se notifica después del COMMIT, para no avisar de un pedido que se revirtió
     this.pedidoNotificationUseCase.publishCreated(pediId);
     return 'Pedido realizado con éxito';
   }
 }
 
-/** El body llega del cliente: se valida su forma antes de consultar la BD */
 function validarCriterio(criterio: PedidoCriterio) {
   if (!Array.isArray(criterio?.items) || !criterio.items.length) {
     throw new BusinessException(

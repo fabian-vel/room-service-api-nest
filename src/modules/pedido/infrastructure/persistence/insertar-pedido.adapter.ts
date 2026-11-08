@@ -26,6 +26,6 @@ export class InsertarPedidoAdapter implements InsertarPedidoRepository {
       },
       'Error al insertar pedido en BD',
     );
-    return Number(rows[0].pedi_id); // bigint: pg lo entrega como string
+    return Number(rows[0].pedi_id);
   }
 }
