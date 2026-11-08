@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BusinessException } from '../../../../shared/domain/exception/business.exception.js';
 import { NotFoundException } from '../../../../shared/domain/exception/not-found.exception.js';
 import { TransactionManager } from '../../../../shared/domain/port/transaction-manager.js';
-import { EstadoPedidoRepository } from '../../domain/port/estado-pedido.repository.js';
+import { PedidoRepository } from '../../domain/port/pedido.repository.js';
 import { PedidoNotificationUseCase } from './pedido-notification.use-case.js';
 import { validarTransicion } from './transicion-estado.js';
 
@@ -15,7 +15,7 @@ export interface CambioEstadoResponse {
 @Injectable()
 export class CambiarEstadoPedidoUseCase {
   constructor(
-    private readonly estadoPedidoRepository: EstadoPedidoRepository,
+    private readonly pedidoRepository: PedidoRepository,
     private readonly transactionManager: TransactionManager,
     private readonly pedidoNotificationUseCase: PedidoNotificationUseCase,
   ) {}
@@ -32,17 +32,14 @@ export class CambiarEstadoPedidoUseCase {
     const { actual, destino } = await this.transactionManager.ejecutar(
       async () => {
         const actual =
-          await this.estadoPedidoRepository.consultarEstadoActual(pediId);
+          await this.pedidoRepository.consultarEstadoActual(pediId);
         if (!actual) throw new NotFoundException('Pedido no encontrado');
-        const destino = await this.estadoPedidoRepository.consultarEstado(
+        const destino = await this.pedidoRepository.consultarEstado(
           espeIdDestino as number,
         );
         if (!destino) throw new BusinessException('Estado de pedido no válido');
         validarTransicion(actual.estado, destino);
-        await this.estadoPedidoRepository.actualizarEstado(
-          pediId,
-          destino.espeId,
-        );
+        await this.pedidoRepository.actualizarEstado(pediId, destino.espeId);
         return { actual, destino };
       },
     );

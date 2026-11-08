@@ -58,8 +58,7 @@ src/
     auth/                      login de habitación y de empleado, fechas de acceso
     constantes/  etiqueta/  menu-categoria/     maestros
     menu-item/  items-especiales/                menú de la app
-    consulta-pedido/           consultas de pedidos (app, tablero y lista paginada)
-    pedido/                    crear pedido, cambiar estado y WebSocket de cocina
+    pedido/                    crear pedido, cambiar estado, consultas (app, tablero y lista paginada) y WebSocket de cocina
 resources/querys/              archivos .sql
 test/                          pruebas e2e contra la BD
 ```

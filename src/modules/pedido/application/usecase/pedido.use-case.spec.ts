@@ -1,8 +1,6 @@
 import type { TransactionManager } from '../../../../shared/domain/port/transaction-manager.js';
 import type { DatosPedido } from '../../domain/model/pedido.js';
-import type { InferirDatosPedidoRepository } from '../../domain/port/inferir-datos-pedido.repository.js';
-import type { InsertarDetallePedidoRepository } from '../../domain/port/insertar-detalle-pedido.repository.js';
-import type { InsertarPedidoRepository } from '../../domain/port/insertar-pedido.repository.js';
+import type { PedidoRepository } from '../../domain/port/pedido.repository.js';
 import { PedidoNotificationUseCase } from './pedido-notification.use-case.js';
 import { PedidoUseCase } from './pedido.use-case.js';
 
@@ -19,19 +17,19 @@ describe('PedidoUseCase', () => {
   ];
   let falla = false;
 
-  const inferir: InferirDatosPedidoRepository = {
+  // solo los métodos que usa crear pedido
+  const repo: Pick<
+    PedidoRepository,
+    'inferirDatosPedidos' | 'insertarPedido' | 'insertarDetallePedido'
+  > = {
     inferirDatosPedidos: async () => {
       orden.push('inferir');
       return datos;
     },
-  };
-  const insertarPedido: InsertarPedidoRepository = {
     insertarPedido: async () => {
       orden.push('pedido');
       return 99;
     },
-  };
-  const insertarDetalle: InsertarDetallePedidoRepository = {
     insertarDetallePedido: async (detalles) => {
       orden.push(`detalle:${detalles[0].pediId}`);
       if (falla) throw new Error('falla');
@@ -43,9 +41,7 @@ describe('PedidoUseCase', () => {
   notificaciones.events((evento) => recibidos.push(evento.pedidoId));
 
   const useCase = new PedidoUseCase(
-    inferir,
-    insertarPedido,
-    insertarDetalle,
+    repo as PedidoRepository,
     transaccion,
     notificaciones,
   );

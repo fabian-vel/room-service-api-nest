@@ -1,6 +1,6 @@
 import type { TransactionManager } from '../../../../shared/domain/port/transaction-manager.js';
 import type { EstadoPedido } from '../../domain/model/estado-pedido.js';
-import type { EstadoPedidoRepository } from '../../domain/port/estado-pedido.repository.js';
+import type { PedidoRepository } from '../../domain/port/pedido.repository.js';
 import { CambiarEstadoPedidoUseCase } from './cambiar-estado-pedido.use-case.js';
 import { PedidoNotificationUseCase } from './pedido-notification.use-case.js';
 
@@ -16,7 +16,11 @@ const ESTADOS: Record<number, EstadoPedido> = {
 
 describe('CambiarEstadoPedidoUseCase', () => {
   const actualizados: number[] = [];
-  const repo: EstadoPedidoRepository = {
+  // solo los métodos que usa el cambio de estado
+  const repo: Pick<
+    PedidoRepository,
+    'consultarEstadoActual' | 'consultarEstado' | 'actualizarEstado'
+  > = {
     consultarEstadoActual: async (pediId) =>
       pediId === 15 ? { pediId, haacId: 7, estado: ESTADOS[1] } : null,
     consultarEstado: async (espeId) => ESTADOS[espeId] ?? null,
@@ -30,7 +34,7 @@ describe('CambiarEstadoPedidoUseCase', () => {
   const eventos: unknown[] = [];
   notificaciones.events((evento) => eventos.push(evento));
   const useCase = new CambiarEstadoPedidoUseCase(
-    repo,
+    repo as PedidoRepository,
     transaccion,
     notificaciones,
   );

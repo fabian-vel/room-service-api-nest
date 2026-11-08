@@ -2,9 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BusinessException } from '../../../../shared/domain/exception/business.exception.js';
 import { TransactionManager } from '../../../../shared/domain/port/transaction-manager.js';
 import type { PedidoCriterio } from '../../domain/model/pedido.js';
-import { InferirDatosPedidoRepository } from '../../domain/port/inferir-datos-pedido.repository.js';
-import { InsertarDetallePedidoRepository } from '../../domain/port/insertar-detalle-pedido.repository.js';
-import { InsertarPedidoRepository } from '../../domain/port/insertar-pedido.repository.js';
+import { PedidoRepository } from '../../domain/port/pedido.repository.js';
 import { armarPedido } from './armar-pedido.js';
 import { PedidoNotificationUseCase } from './pedido-notification.use-case.js';
 
@@ -13,9 +11,7 @@ const SMALLINT_MAX = 32767;
 @Injectable()
 export class PedidoUseCase {
   constructor(
-    private readonly inferirDatosPedidoRepository: InferirDatosPedidoRepository,
-    private readonly insertarPedidoRepository: InsertarPedidoRepository,
-    private readonly insertarDetallePedidoRepository: InsertarDetallePedidoRepository,
+    private readonly pedidoRepository: PedidoRepository,
     private readonly transactionManager: TransactionManager,
     private readonly pedidoNotificationUseCase: PedidoNotificationUseCase,
   ) {}
@@ -24,13 +20,13 @@ export class PedidoUseCase {
     validarCriterio(criterio);
 
     const pediId = await this.transactionManager.ejecutar(async () => {
-      const datos = await this.inferirDatosPedidoRepository.inferirDatosPedidos(
+      const datos = await this.pedidoRepository.inferirDatosPedidos(
         haacId,
         criterio.items.map((item) => item.meitId),
       );
       const { pedido, detalles } = armarPedido(criterio, haacId, datos);
-      const pediId = await this.insertarPedidoRepository.insertarPedido(pedido);
-      await this.insertarDetallePedidoRepository.insertarDetallePedido(
+      const pediId = await this.pedidoRepository.insertarPedido(pedido);
+      await this.pedidoRepository.insertarDetallePedido(
         detalles.map((detalle) => ({ ...detalle, pediId })),
       );
       return pediId;

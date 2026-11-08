@@ -8,7 +8,7 @@ import { setupApp } from './../src/app.setup.js';
 import { PG_POOL } from './../src/shared/database/database.module.js';
 import { enTransaccion } from './../src/shared/database/sql.util.js';
 import { JwtService } from './../src/shared/security/jwt.service.js';
-import { InsertarPedidoRepository } from './../src/modules/pedido/domain/port/insertar-pedido.repository.js';
+import { PedidoRepository } from './../src/modules/pedido/domain/port/pedido.repository.js';
 
 try {
   process.loadEnvFile();
@@ -131,10 +131,10 @@ describe('Crear pedido (e2e)', () => {
 
   it('si algo falla dentro de la transacción el pedido insertado se revierte', async () => {
     const antes = await maxPediId();
-    const insertarPedido = app.get(InsertarPedidoRepository, { strict: false });
+    const pedidoRepository = app.get(PedidoRepository, { strict: false });
     await expect(
       enTransaccion(pool, async () => {
-        await insertarPedido.insertarPedido({
+        await pedidoRepository.insertarPedido({
           haacId,
           habitacion: '302',
           clienteNombre: 'e2e',
