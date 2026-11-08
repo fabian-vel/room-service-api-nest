@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { ItemsEspecialesUseCase } from '../../application/usecase/items-especiales.use-case.js';
+import { ItemsEspecialesDocs } from './items-especiales.docs.js';
 
-@ApiTags('Menú')
+@ItemsEspecialesDocs.controller()
 @Controller('items-especiales')
 export class ItemsEspecialesController {
   constructor(
@@ -11,6 +11,7 @@ export class ItemsEspecialesController {
   ) {}
 
   @Get()
+  @ItemsEspecialesDocs.consultar()
   async consultarItemsEspeciales() {
     return ApiResponse.ok(
       '',

@@ -1,25 +1,25 @@
 import { Controller, ForbiddenException, Get, Query } from '@nestjs/common';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { BusinessException } from '../../../../shared/domain/exception/business.exception.js';
 import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { Claims } from '../../../../shared/security/claims.decorator.js';
 import type { Claims as ClaimsToken } from '../../../../shared/security/jwt.service.js';
 import { ConsultaPedidoUseCase } from '../../application/usecase/consulta-pedido.use-case.js';
 import type { ConsultaPedidoFiltro } from '../../domain/model/consulta-pedido.js';
+import { ConsultaPedidoDocs } from './consulta-pedido.docs.js';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_SIZE = 20;
 const SHORT_MAX = 32767;
 const INT_MAX = 2147483647;
 
-@ApiTags('Pedidos')
+@ConsultaPedidoDocs.controller()
 @Controller()
 export class ConsultaPedidoController {
   constructor(private readonly consultaPedidoUseCase: ConsultaPedidoUseCase) {}
 
   @Get('consulta-pedidos')
+  @ConsultaPedidoDocs.porHabitacion()
   async consultarPedidoPorUsuario(@Claims() claims: ClaimsToken) {
-    // solo los tokens de habitación traen accesoId
     if (!('accesoId' in claims))
       throw new ForbiddenException('El token no corresponde a una habitación');
     const pedidos = await this.consultaPedidoUseCase.consultarPedidoPorUsuario(
@@ -33,6 +33,7 @@ export class ConsultaPedidoController {
   }
 
   @Get('consulta-pedidos-fecha-actual')
+  @ConsultaPedidoDocs.fechaActual()
   async consultarPedidoFechaActual() {
     const pedidos =
       await this.consultaPedidoUseCase.consultarPedidoFechaActual();
@@ -44,49 +45,7 @@ export class ConsultaPedidoController {
   }
 
   @Get('pedidos')
-  @ApiQuery({
-    name: 'fechaDesde',
-    required: false,
-    type: 'string',
-    description: 'YYYY-MM-DD',
-  })
-  @ApiQuery({
-    name: 'fechaHasta',
-    required: false,
-    type: 'string',
-    description: 'YYYY-MM-DD (incluye todo el día)',
-  })
-  @ApiQuery({
-    name: 'estadoPedido',
-    required: false,
-    type: 'integer',
-    description:
-      'espe_id de mst_estados_pedido (1 pendiente, 2 en preparación, 3 entregado, 4 cancelado)',
-  })
-  @ApiQuery({
-    name: 'habitacion',
-    required: false,
-    type: 'string',
-    description: 'Número exacto de habitación',
-  })
-  @ApiQuery({
-    name: 'producto',
-    required: false,
-    type: 'string',
-    description: 'Parte del nombre de un producto del pedido',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: 'integer',
-    description: 'Página, desde 1 (por defecto 1)',
-  })
-  @ApiQuery({
-    name: 'size',
-    required: false,
-    type: 'integer',
-    description: 'Tamaño de página, 1 a 100 (por defecto 20)',
-  })
+  @ConsultaPedidoDocs.filtro()
   async consultarPedidoFiltro(@Query() query: Record<string, unknown>) {
     const pagina = await this.consultaPedidoUseCase.consultarPedidoFiltro(
       toFiltro(query),

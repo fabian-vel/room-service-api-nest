@@ -9,18 +9,19 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { SuccessMessages } from '../../../../shared/constant/success-messages.js';
 import { MenuCategoriaUseCase } from '../../application/usecase/menu-categoria.use-case.js';
 import type { MenuCategoria } from '../../domain/model/menu-categoria.js';
+import { MenuCategoriaDocs } from './menu-categoria.docs.js';
 
-@ApiTags('Categorías')
+@MenuCategoriaDocs.controller()
 @Controller('categorias')
 export class MenuCategoriaController {
   constructor(private readonly menuCategoriaUseCase: MenuCategoriaUseCase) {}
 
   @Get()
+  @MenuCategoriaDocs.consultar()
   async consultarCategorias() {
     const categorias = await this.menuCategoriaUseCase.consultarCategorias();
     return ApiResponse.ok(
@@ -31,6 +32,7 @@ export class MenuCategoriaController {
   }
 
   @Get('todas')
+  @MenuCategoriaDocs.consultarTodas()
   async consultarCategoriasTodas() {
     const categorias =
       await this.menuCategoriaUseCase.consultarCategoriasTodas();
@@ -43,34 +45,14 @@ export class MenuCategoriaController {
 
   @Post()
   @HttpCode(200)
-  @ApiBody({
-    schema: {
-      example: {
-        mecaLlaveMst: 'MECA_BEBIDAS',
-        mecaNombre: 'Bebidas',
-        mecaDescripcion: 'Bebidas frías y calientes',
-        mecaImagenUrl: null,
-        mecaParentId: null,
-      },
-    },
-  })
+  @MenuCategoriaDocs.insertar()
   async insertarCategoria(@Body() categoria: MenuCategoria) {
     const id = await this.menuCategoriaUseCase.insertarCategoria(categoria);
     return ApiResponse.ok('Categoría creada exitosamente', id, 1);
   }
 
   @Put(':id')
-  @ApiBody({
-    schema: {
-      example: {
-        mecaLlaveMst: 'MECA_BEBIDAS',
-        mecaNombre: 'Bebidas',
-        mecaDescripcion: 'Bebidas frías y calientes',
-        mecaImagenUrl: null,
-        mecaParentId: null,
-      },
-    },
-  })
+  @MenuCategoriaDocs.actualizar()
   async actualizarCategoria(
     @Param('id', ParseIntPipe) id: number,
     @Body() categoria: MenuCategoria,
@@ -83,6 +65,7 @@ export class MenuCategoriaController {
   }
 
   @Delete(':id')
+  @MenuCategoriaDocs.eliminar()
   async eliminarCategoria(@Param('id', ParseIntPipe) id: number) {
     const rows = await this.menuCategoriaUseCase.eliminarCategoria(id);
     return ApiResponse.ok('Categoría eliminada exitosamente', rows, 1);

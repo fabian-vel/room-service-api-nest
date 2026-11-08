@@ -8,15 +8,15 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { Claims } from '../../../../shared/security/claims.decorator.js';
 import type { Claims as ClaimsToken } from '../../../../shared/security/jwt.service.js';
 import { CambiarEstadoPedidoUseCase } from '../../application/usecase/cambiar-estado-pedido.use-case.js';
 import { PedidoUseCase } from '../../application/usecase/pedido.use-case.js';
 import type { PedidoCriterio } from '../../domain/model/pedido.js';
+import { PedidoDocs } from './pedido.docs.js';
 
-@ApiTags('Pedidos')
+@PedidoDocs.controller()
 @Controller('pedido')
 export class PedidoController {
   constructor(
@@ -26,17 +26,7 @@ export class PedidoController {
 
   @Post()
   @HttpCode(200)
-  @ApiBody({
-    schema: {
-      example: {
-        observacion: 'Sin cebolla',
-        items: [
-          { meitId: 1, cantidad: 2, observacion: null },
-          { meitId: 12, cantidad: 1, observacion: 'Bien frío' },
-        ],
-      },
-    },
-  })
+  @PedidoDocs.crear()
   async crearPedido(
     @Body() criterio: PedidoCriterio,
     @Claims() claims: ClaimsToken,
@@ -51,7 +41,7 @@ export class PedidoController {
   }
 
   @Put(':id/estado')
-  @ApiBody({ schema: { example: { estadoPedido: 2 } } })
+  @PedidoDocs.cambiarEstado()
   async cambiarEstado(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { estadoPedido?: number },

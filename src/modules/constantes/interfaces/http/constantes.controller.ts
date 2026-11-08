@@ -9,17 +9,18 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { ConstantesUseCase } from '../../application/usecase/constantes.use-case.js';
 import type { Constantes } from '../../domain/model/constantes.js';
+import { ConstantesDocs } from './constantes.docs.js';
 
-@ApiTags('Constantes')
+@ConstantesDocs.controller()
 @Controller('constantes')
 export class ConstantesController {
   constructor(private readonly constantesUseCase: ConstantesUseCase) {}
 
   @Get()
+  @ConstantesDocs.consultar()
   async consultarConstantes() {
     const constantes = await this.constantesUseCase.consultarConstantes();
     return ApiResponse.ok(
@@ -31,30 +32,14 @@ export class ConstantesController {
 
   @Post()
   @HttpCode(200)
-  @ApiBody({
-    schema: {
-      example: {
-        consLlave: 'CONST_EJEMPLO',
-        consValor: '10',
-        consDescripcion: 'Descripción',
-      },
-    },
-  })
+  @ConstantesDocs.insertar()
   async insertarConstante(@Body() constante: Constantes) {
     const id = await this.constantesUseCase.insertarConstante(constante);
     return ApiResponse.ok('Constante creada exitosamente', id, 1);
   }
 
   @Put(':id')
-  @ApiBody({
-    schema: {
-      example: {
-        consLlave: 'CONST_EJEMPLO',
-        consValor: '10',
-        consDescripcion: 'Descripción',
-      },
-    },
-  })
+  @ConstantesDocs.actualizar()
   async actualizarConstante(
     @Param('id', ParseIntPipe) id: number,
     @Body() constante: Constantes,
@@ -67,6 +52,7 @@ export class ConstantesController {
   }
 
   @Delete(':id')
+  @ConstantesDocs.eliminar()
   async eliminarConstante(@Param('id', ParseIntPipe) id: number) {
     const rows = await this.constantesUseCase.eliminarConstante(id);
     return ApiResponse.ok('Constante eliminada exitosamente', rows, 1);
