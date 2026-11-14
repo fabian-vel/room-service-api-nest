@@ -59,7 +59,8 @@ src/
     constantes/  etiqueta/  menu-categoria/     maestros
     menu-item/  items-especiales/                menú de la app
     pedido/                    crear, cambiar estado y cancelar pedido, consultas (app, tablero y lista paginada) y WebSocket de cocina
-resources/querys/              archivos .sql
+resources/querys/              archivos .sql de las consultas
+resources/db/                  esquema y datos base para crear la BD
 test/                          pruebas e2e contra la BD
 ```
 
@@ -108,6 +109,14 @@ Variables de entorno (en desarrollo, archivo `.env` en la raíz; ver `.env.examp
 ---
 
 ## Ejecutar
+
+Base de datos nueva (vacía), con `psql`:
+
+```bash
+psql -d hotelguestdb -v ON_ERROR_STOP=1 -f resources/db/01-esquema.sql -f resources/db/02-datos-base.sql
+```
+
+El empleado inicial va comentado al final de `02-datos-base.sql`: generar el hash de la contraseña con el comando que trae y descomentarlo.
 
 ```bash
 npm install
