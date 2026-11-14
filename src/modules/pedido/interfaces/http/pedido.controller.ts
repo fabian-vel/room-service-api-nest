@@ -61,7 +61,8 @@ export class PedidoController {
     return ApiResponse.ok('Estado del pedido actualizado', estado, 1);
   }
 
-  @Put(':id/cancelar')
+  @Post(':id/cancelar')
+  @HttpCode(200)
   @PedidoDocs.cancelar()
   async cancelar(
     @Param('id', ParseIntPipe) id: number,

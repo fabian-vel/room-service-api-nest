@@ -157,7 +157,7 @@ describe('Crear pedido (e2e)', () => {
     const pediId = await maxPediId();
 
     const res = await request(app.getHttpServer())
-      .put(`/api/v1/pedido/${pediId}/cancelar`)
+      .post(`/api/v1/pedido/${pediId}/cancelar`)
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
     expect(res.body).toMatchObject({
@@ -167,7 +167,7 @@ describe('Crear pedido (e2e)', () => {
 
     // ya cancelado no está pendiente
     await request(app.getHttpServer())
-      .put(`/api/v1/pedido/${pediId}/cancelar`)
+      .post(`/api/v1/pedido/${pediId}/cancelar`)
       .set('Authorization', `Bearer ${token}`)
       .expect(422);
   });

@@ -81,7 +81,7 @@ Todos bajo `/api/v1` y con `Authorization: Bearer <token>`, salvo los de `auth`.
 | GET | `/items-especiales` | Más pedidos, más recientes y recomendados del chef |
 | POST | `/pedido` | Crear pedido (token de habitación) |
 | PUT | `/pedido/{id}/estado` | Cambiar estado del pedido (empleado de cocina) |
-| PUT | `/pedido/{id}/cancelar` | Cancelar el pedido propio, solo si está pendiente (token de habitación) |
+| POST | `/pedido/{id}/cancelar` | Cancelar el pedido propio, solo si está pendiente (token de habitación) |
 | GET | `/consulta-pedidos` | Pedidos de la habitación del token |
 | GET | `/consulta-pedidos-fecha-actual` | Tablero de cocina |
 | GET | `/pedidos` | Lista paginada con filtros opcionales |
