@@ -8,6 +8,7 @@ import { MenuItemModule } from './modules/menu-item/menu-item.module.js';
 import { ItemsEspecialesModule } from './modules/items-especiales/items-especiales.module.js';
 import { EtiquetaModule } from './modules/etiqueta/etiqueta.module.js';
 import { MenuCategoriaModule } from './modules/menu-categoria/menu-categoria.module.js';
+import { ReporteModule } from './modules/reporte/reporte.module.js';
 
 @Module({
   // un módulo por contexto (ver README)
@@ -21,6 +22,7 @@ import { MenuCategoriaModule } from './modules/menu-categoria/menu-categoria.mod
     PedidoModule,
     MenuItemModule,
     ItemsEspecialesModule,
+    ReporteModule,
   ],
 })
 export class AppModule {}

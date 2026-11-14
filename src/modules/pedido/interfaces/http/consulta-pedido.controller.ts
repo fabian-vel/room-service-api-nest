@@ -1,5 +1,9 @@
 import { Controller, ForbiddenException, Get, Query } from '@nestjs/common';
-import { BusinessException } from '../../../../shared/domain/exception/business.exception.js';
+import {
+  entero,
+  fecha,
+  param,
+} from '../../../../shared/util/query-param.util.js';
 import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { Claims } from '../../../../shared/security/claims.decorator.js';
 import type { Claims as ClaimsToken } from '../../../../shared/security/jwt.service.js';
@@ -68,44 +72,4 @@ export function toFiltro(query: Record<string, unknown>): ConsultaPedidoFiltro {
     page: entero(query, 'page', INT_MAX) ?? DEFAULT_PAGE,
     size: entero(query, 'size', INT_MAX) ?? DEFAULT_SIZE,
   };
-}
-
-/** Valor del parámetro sin espacios; undefined si no viene o está vacío (si se repite, toma el primero) */
-function param(
-  query: Record<string, unknown>,
-  nombre: string,
-): string | undefined {
-  const valor = Array.isArray(query[nombre]) ? query[nombre][0] : query[nombre];
-  const texto = typeof valor === 'string' ? valor.trim() : '';
-  return texto || undefined;
-}
-
-function invalido(nombre: string): never {
-  throw new BusinessException(`El parámetro ${nombre} no es válido`);
-}
-
-function fecha(
-  query: Record<string, unknown>,
-  nombre: string,
-): string | undefined {
-  const valor = param(query, nombre);
-  if (valor === undefined) return undefined;
-  // YYYY-MM-DD y que la fecha exista (rechaza 2026-02-30)
-  const valida =
-    /^\d{4}-\d{2}-\d{2}$/.test(valor) &&
-    new Date(`${valor}T00:00:00Z`).toISOString().startsWith(valor);
-  return valida ? valor : invalido(nombre);
-}
-
-function entero(
-  query: Record<string, unknown>,
-  nombre: string,
-  maximo: number,
-): number | undefined {
-  const valor = param(query, nombre);
-  if (valor === undefined) return undefined;
-  const numero = Number(valor);
-  return /^[+-]?\d+$/.test(valor) && Math.abs(numero) <= maximo
-    ? numero
-    : invalido(nombre);
 }
