@@ -57,7 +57,7 @@ src/
   modules/
     auth/                      login de habitación y de empleado, fechas de acceso
     constantes/  etiqueta/  menu-categoria/     maestros
-    menu-item/  items-especiales/                menú de la app
+    menu-item/  items-especiales/                menú de la app y maestro de ítems
     reporte/                   reportes de ventas y pedidos por rango de fechas
     pedido/                    crear, cambiar estado y cancelar pedido, consultas (app, tablero y lista paginada) y WebSocket de cocina
 resources/querys/              archivos .sql de las consultas
@@ -80,6 +80,7 @@ Todos bajo `/api/v1` y con `Authorization: Bearer <token>`, salvo los de `auth`.
 | POST | `/etiquetas/consulta` | Etiquetas de una categoría o de un item |
 | GET | `/categorias/todas` | Categorías planas (maestro); `GET /categorias` las devuelve en árbol |
 | POST | `/menu` | Items de una categoría con sus etiquetas |
+| GET · POST · PUT · DELETE | `/items` | Maestro de ítems del menú con sus etiquetas (PUT y DELETE con `/{id}`) |
 | GET | `/items-especiales` | Más pedidos, más recientes y recomendados del chef |
 | POST | `/pedido` | Crear pedido (token de habitación) |
 | PUT | `/pedido/{id}/estado` | Cambiar estado del pedido (empleado de cocina) |
