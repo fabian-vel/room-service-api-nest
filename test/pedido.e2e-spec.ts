@@ -42,7 +42,9 @@ describe('Crear pedido (e2e)', () => {
 
     const acceso = await pool.query(
       `SELECT haac_id, haac_habitacion FROM tbl_habitacion_acceso
-       WHERE haac_estado = 'A' AND haac_fecha_eliminacion IS NULL LIMIT 1`,
+       WHERE haac_estado = 'A' AND haac_fecha_eliminacion IS NULL
+         AND NOW() BETWEEN haac_fecha_inicio AND haac_fecha_fin
+       ORDER BY haac_id LIMIT 1`,
     );
     haacId = Number(acceso.rows[0].haac_id);
     token = app.get(JwtService).generarToken(

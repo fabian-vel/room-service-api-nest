@@ -61,6 +61,7 @@ src/
     reporte/                   reportes de ventas y pedidos por rango de fechas
     empleado/                  empleados y su rol (solo ADMIN)
     factura/                   factura de la habitación y registro de pagos (tbl_pagos)
+    acceso-habitacion/         registro de huéspedes: accesos, fechas y código
     pedido/                    crear, cambiar estado y cancelar pedido, consultas (app, tablero y lista paginada) y WebSocket de cocina
 resources/querys/              archivos .sql de las consultas
 resources/db/                  esquema y datos base para crear la BD
@@ -97,6 +98,8 @@ Todos bajo `/api/v1` y con `Authorization: Bearer <token>`, salvo los de `auth`.
 | GET | `/facturas?habitacion=` | Accesos de una habitación con su saldo; sin habitación, los que deben |
 | GET | `/facturas/{haacId}` | Factura del acceso: pedidos sin cancelados con su detalle, saldo y pagos |
 | POST | `/facturas/{haacId}/pagos` | Cobra los pedidos pendientes (todos entregados) y los marca con el pago |
+| GET · POST · PUT | `/accesos` | Registro de huéspedes: lista (vigentes, o historial con `?habitacion=`), registra (genera el código) y edita huésped y fechas (PUT con `/{id}`) |
+| POST | `/accesos/{id}/codigo` · `/accesos/{id}/finalizar` | Renueva el código de acceso · finaliza el acceso (check-out) |
 
 **WebSocket:** `ws://<host>:<puerto>/ws/pedidos?token=<jwt>` con token de empleado envía cada evento de pedido (`{"type":"CREATED","pedidoId":...}`); con token de habitación, solo los de sus pedidos (`STATUS_CHANGED`, `CANCELLED`). Sin token o con token inválido cierra con el código 1003.
 
