@@ -7,12 +7,17 @@ export abstract class PasswordEncoder {
     rawPassword: string,
     encodedPassword: string,
   ): Promise<boolean>;
+  abstract encode(rawPassword: string): Promise<string>;
 }
 
-/** Valida contraseñas contra hash bcrypt ($2a$, el formato de tbl_empleados) */
+/** Valida y genera hash bcrypt ($2a$, el formato de tbl_empleados) */
 @Injectable()
 export class BcryptPasswordEncoder implements PasswordEncoder {
   matches(rawPassword: string, encodedPassword: string): Promise<boolean> {
     return bcrypt.compare(rawPassword, encodedPassword);
+  }
+
+  encode(rawPassword: string): Promise<string> {
+    return bcrypt.hash(rawPassword, 10);
   }
 }

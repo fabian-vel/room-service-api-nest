@@ -59,6 +59,7 @@ src/
     constantes/  etiqueta/  menu-categoria/     maestros
     menu-item/  items-especiales/                menú de la app y maestro de ítems
     reporte/                   reportes de ventas y pedidos por rango de fechas
+    empleado/                  empleados y su rol (solo ADMIN)
     pedido/                    crear, cambiar estado y cancelar pedido, consultas (app, tablero y lista paginada) y WebSocket de cocina
 resources/querys/              archivos .sql de las consultas
 resources/db/                  esquema y datos base para crear la BD
@@ -91,6 +92,7 @@ Todos bajo `/api/v1` y con `Authorization: Bearer <token>`, salvo los de `auth`.
 | GET | `/consulta-pedidos-fecha-actual` | Tablero de cocina |
 | GET | `/pedidos` | Lista paginada con filtros opcionales |
 | GET | `/reportes?fechaDesde=&fechaHasta=` | Ventas por día, ítems más vendidos, pedidos por estado y ventas por habitación (empleado) |
+| GET · POST · PUT · DELETE | `/empleados` | Empleados y su rol, solo ADMIN (PUT y DELETE con `/{id}`; sin contraseña en el PUT se conserva la actual) |
 
 **WebSocket:** `ws://<host>:<puerto>/ws/pedidos?token=<jwt>` con token de empleado envía cada evento de pedido (`{"type":"CREATED","pedidoId":...}`); con token de habitación, solo los de sus pedidos (`STATUS_CHANGED`, `CANCELLED`). Sin token o con token inválido cierra con el código 1003.
 

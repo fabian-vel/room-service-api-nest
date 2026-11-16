@@ -9,6 +9,7 @@ import { ItemsEspecialesModule } from './modules/items-especiales/items-especial
 import { EtiquetaModule } from './modules/etiqueta/etiqueta.module.js';
 import { MenuCategoriaModule } from './modules/menu-categoria/menu-categoria.module.js';
 import { ReporteModule } from './modules/reporte/reporte.module.js';
+import { EmpleadoModule } from './modules/empleado/empleado.module.js';
 
 @Module({
   // un módulo por contexto (ver README)
@@ -23,6 +24,7 @@ import { ReporteModule } from './modules/reporte/reporte.module.js';
     MenuItemModule,
     ItemsEspecialesModule,
     ReporteModule,
+    EmpleadoModule,
   ],
 })
 export class AppModule {}

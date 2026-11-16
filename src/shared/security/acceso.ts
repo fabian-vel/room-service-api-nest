@@ -1,7 +1,17 @@
 import { SetMetadata } from '@nestjs/common';
 
 // matriz de roles (PENDIENTES, sección 6): qué roles de empleado entran a cada módulo
+export const ROLES = [
+  'ADMIN',
+  'AUX_ADMIN',
+  'RECEPCION',
+  'COCINA',
+  'MESERO',
+] as const;
+
 export const MATRIZ_ROLES = {
+  // solo ADMIN: si otro rol asignara roles, podría darse ADMIN a sí mismo
+  EMPLEADOS: ['ADMIN'],
   CONSTANTES: ['ADMIN'],
   MAESTROS: ['ADMIN', 'AUX_ADMIN'],
   GESTION_PEDIDOS: ['ADMIN', 'AUX_ADMIN', 'COCINA', 'MESERO'],
