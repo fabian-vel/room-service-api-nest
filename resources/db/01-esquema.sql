@@ -173,6 +173,28 @@ ALTER TABLE public.tbl_menu_items ALTER COLUMN meit_id ADD GENERATED ALWAYS AS I
     CACHE 1
 );
 
+CREATE TABLE public.tbl_pagos (
+    pago_id bigint NOT NULL,
+    haac_id bigint NOT NULL,
+    empl_id smallint NOT NULL,
+    pago_total numeric(10,2) NOT NULL,
+    pago_metodo character varying(20) NOT NULL,
+    pago_observacion character varying(255),
+    pago_estado character varying(1) DEFAULT 'A'::character varying NOT NULL,
+    pago_fecha_creacion timestamp with time zone DEFAULT now() NOT NULL,
+    pago_fecha_modificacion timestamp with time zone DEFAULT now() NOT NULL,
+    pago_fecha_eliminacion timestamp with time zone
+);
+
+CREATE SEQUENCE public.tbl_pagos_pago_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.tbl_pagos_pago_id_seq OWNED BY public.tbl_pagos.pago_id;
+
 CREATE TABLE public.tbl_pedido_detalle (
     pede_id bigint NOT NULL,
     pedi_id bigint NOT NULL,
@@ -207,7 +229,8 @@ CREATE TABLE public.tbl_pedidos (
     pedi_estado character varying(1) DEFAULT 'A'::character varying NOT NULL,
     pedi_fecha_creacion timestamp with time zone DEFAULT now() NOT NULL,
     pedi_fecha_modificacion timestamp with time zone DEFAULT now() NOT NULL,
-    pedi_fecha_eliminacion timestamp with time zone
+    pedi_fecha_eliminacion timestamp with time zone,
+    pago_id bigint
 );
 
 CREATE SEQUENCE public.tbl_pedidos_pedi_id_seq
@@ -228,6 +251,8 @@ ALTER TABLE ONLY public.tbl_empleados ALTER COLUMN empl_id SET DEFAULT nextval('
 ALTER TABLE ONLY public.tbl_habitacion_acceso ALTER COLUMN haac_id SET DEFAULT nextval('public.tbl_habitacion_acceso_haac_id_seq'::regclass);
 
 ALTER TABLE ONLY public.tbl_pedido_detalle ALTER COLUMN pede_id SET DEFAULT nextval('public.tbl_pedido_detalle_pede_id_seq'::regclass);
+
+ALTER TABLE ONLY public.tbl_pagos ALTER COLUMN pago_id SET DEFAULT nextval('public.tbl_pagos_pago_id_seq'::regclass);
 
 ALTER TABLE ONLY public.tbl_pedidos ALTER COLUMN pedi_id SET DEFAULT nextval('public.tbl_pedidos_pedi_id_seq'::regclass);
 
@@ -276,6 +301,9 @@ ALTER TABLE ONLY public.tbl_menu_items
 ALTER TABLE ONLY public.tbl_pedido_detalle
     ADD CONSTRAINT tbl_pedido_detalle_pkey PRIMARY KEY (pede_id);
 
+ALTER TABLE ONLY public.tbl_pagos
+    ADD CONSTRAINT tbl_pagos_pkey PRIMARY KEY (pago_id);
+
 ALTER TABLE ONLY public.tbl_pedidos
     ADD CONSTRAINT tbl_pedidos_pkey PRIMARY KEY (pedi_id);
 
@@ -283,6 +311,8 @@ ALTER TABLE ONLY public.tbl_item_etiquetas
     ADD CONSTRAINT uq_item_etiqueta UNIQUE (meit_id, etiq_id);
 
 CREATE INDEX idx_pedido_detalle_pedi_id ON public.tbl_pedido_detalle USING btree (pedi_id);
+
+CREATE INDEX idx_pagos_haac_id ON public.tbl_pagos USING btree (haac_id);
 
 CREATE INDEX idx_pedidos_fecha_creacion ON public.tbl_pedidos USING btree (pedi_fecha_creacion);
 
@@ -311,6 +341,15 @@ ALTER TABLE ONLY public.tbl_pedido_detalle
 
 ALTER TABLE ONLY public.tbl_pedidos
     ADD CONSTRAINT tbl_pedidos_haac_id_fkey FOREIGN KEY (haac_id) REFERENCES public.tbl_habitacion_acceso(haac_id);
+
+ALTER TABLE ONLY public.tbl_pagos
+    ADD CONSTRAINT tbl_pagos_empl_id_fkey FOREIGN KEY (empl_id) REFERENCES public.tbl_empleados(empl_id);
+
+ALTER TABLE ONLY public.tbl_pagos
+    ADD CONSTRAINT tbl_pagos_haac_id_fkey FOREIGN KEY (haac_id) REFERENCES public.tbl_habitacion_acceso(haac_id);
+
+ALTER TABLE ONLY public.tbl_pedidos
+    ADD CONSTRAINT tbl_pedidos_pago_id_fkey FOREIGN KEY (pago_id) REFERENCES public.tbl_pagos(pago_id);
 
 ALTER TABLE ONLY public.tbl_pedidos
     ADD CONSTRAINT tbl_pedidos_pedi_estado_pedido_fkey FOREIGN KEY (pedi_estado_pedido) REFERENCES public.mst_estados_pedido(espe_id);

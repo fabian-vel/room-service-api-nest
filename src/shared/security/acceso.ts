@@ -17,6 +17,7 @@ export const MATRIZ_ROLES = {
   GESTION_PEDIDOS: ['ADMIN', 'AUX_ADMIN', 'COCINA', 'MESERO'],
   CONSULTA_PEDIDOS: ['ADMIN', 'AUX_ADMIN', 'RECEPCION', 'COCINA', 'MESERO'],
   REPORTES: ['ADMIN', 'AUX_ADMIN', 'COCINA'],
+  FACTURA: ['ADMIN', 'AUX_ADMIN', 'RECEPCION'],
 } as const;
 
 export type Modulo = keyof typeof MATRIZ_ROLES;
