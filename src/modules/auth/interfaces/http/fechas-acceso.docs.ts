@@ -1,12 +1,10 @@
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiOkResponse,
-  ApiBody,
   ApiNotFoundResponse,
   ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
-  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 
 export const FechasAccesoDocs = {
@@ -23,11 +21,9 @@ export const FechasAccesoDocs = {
     applyDecorators(
       ApiOperation({
         summary: 'Fechas de vigencia del acceso a la habitación',
+        description:
+          'Usa el acceso del token de habitación; el body se ignora (se acepta por compatibilidad con la app).',
       }),
-      ApiBody({ schema: { example: { haacId: 1 } } }),
       ApiNotFoundResponse({ description: 'Acceso no encontrado' }),
-      ApiUnprocessableEntityResponse({
-        description: 'El haacId es obligatorio',
-      }),
     ),
 };

@@ -79,7 +79,7 @@ Todos bajo `/api/v1` y con `Authorization: Bearer <token>`, salvo los de `auth`.
 |---|---|---|
 | POST | `/auth/login` | Login del huésped (habitación + código) |
 | POST | `/auth/empleado/login` | Login de empleado |
-| POST | `/fechas-acceso` | Fechas de inicio y fin del acceso |
+| POST | `/fechas-acceso` | Fechas de inicio y fin del acceso del token de habitación |
 | GET · POST · PUT · DELETE | `/constantes`, `/etiquetas`, `/categorias` | Maestros (PUT y DELETE con `/{id}`) |
 | POST | `/etiquetas/consulta` | Etiquetas de una categoría o de un item |
 | GET | `/categorias/todas` | Categorías planas (maestro); `GET /categorias` las devuelve en árbol |

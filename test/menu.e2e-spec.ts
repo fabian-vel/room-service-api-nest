@@ -80,13 +80,28 @@ describe('Menú, items especiales y fechas de acceso (e2e)', () => {
     }
   });
 
-  it('POST /fechas-acceso devuelve las fechas del acceso; 404 si no existe', async () => {
-    const res = await post('/api/v1/fechas-acceso', { haacId: 1 }).expect(200);
+  it('POST /fechas-acceso usa el acceso del token e ignora el haacId del body', async () => {
+    const res = await post('/api/v1/fechas-acceso', { haacId: 999999 }).expect(
+      200,
+    );
     expect(Object.keys(res.body.data)).toEqual([
       'haacId',
       'haacFechaInicio',
       'haacFechaFin',
     ]);
-    await post('/api/v1/fechas-acceso', { haacId: 999999 }).expect(404);
+    expect(res.body.data.haacId).toBe(1);
+  });
+
+  it('POST /fechas-acceso con un acceso inexistente en el token responde 404', async () => {
+    const otro = app
+      .get(JwtService)
+      .generarToken(
+        { sub: '999', clienteNombre: 'e2e', accesoId: 999999 },
+        new Date(Date.now() + 60_000),
+      );
+    await request(app.getHttpServer())
+      .post('/api/v1/fechas-acceso')
+      .set('Authorization', `Bearer ${otro}`)
+      .expect(404);
   });
 });

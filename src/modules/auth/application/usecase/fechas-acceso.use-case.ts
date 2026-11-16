@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { BusinessException } from '../../../../shared/domain/exception/business.exception.js';
 import { NotFoundException } from '../../../../shared/domain/exception/not-found.exception.js';
 import { HabitacionAccesoRepository } from '../../domain/port/habitacion-acceso.repository.js';
 
@@ -15,12 +14,9 @@ export class FechasAccesoUseCase {
     private readonly habitacionAccesoRepository: HabitacionAccesoRepository,
   ) {}
 
-  async consultaFechaAcceso(haacId: unknown): Promise<FechasAccesoResponse> {
-    if (!Number.isInteger(haacId))
-      throw new BusinessException('El haacId no puede ser nulo');
-    const acceso = await this.habitacionAccesoRepository.consultaFechasAcceso(
-      haacId as number,
-    );
+  async consultaFechaAcceso(haacId: number): Promise<FechasAccesoResponse> {
+    const acceso =
+      await this.habitacionAccesoRepository.consultaFechasAcceso(haacId);
     if (!acceso) throw new NotFoundException('Acceso no encontrado');
     return {
       haacId: acceso.haacId,
