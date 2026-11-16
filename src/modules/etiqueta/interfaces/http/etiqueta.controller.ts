@@ -14,13 +14,16 @@ import { EtiquetaUseCase } from '../../application/usecase/etiqueta.use-case.js'
 import type { Etiqueta } from '../../domain/model/etiqueta.js';
 import type { EtiquetaRequest } from '../../domain/model/etiqueta-request.js';
 import { EtiquetaDocs } from './etiqueta.docs.js';
+import { Acceso, HABITACION } from '../../../../shared/security/acceso.js';
 
 @EtiquetaDocs.controller()
+@Acceso('MAESTROS')
 @Controller('etiquetas')
 export class EtiquetaController {
   constructor(private readonly etiquetaUseCase: EtiquetaUseCase) {}
 
   @Post('consulta')
+  @Acceso(HABITACION, 'MAESTROS')
   @HttpCode(200)
   @EtiquetaDocs.consultaPorFiltro()
   async consultaEtiqueta(@Body() request: EtiquetaRequest) {

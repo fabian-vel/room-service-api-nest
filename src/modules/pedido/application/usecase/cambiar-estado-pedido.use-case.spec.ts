@@ -69,4 +69,11 @@ describe('CambiarEstadoPedidoUseCase', () => {
       expect(eventos).toEqual([]);
     },
   );
+
+  it('el mesero solo puede marcar el pedido como entregado', async () => {
+    await expect(useCase.cambiarEstado(15, 2, true)).rejects.toThrow(
+      'El mesero solo puede marcar el pedido como entregado',
+    );
+    expect(actualizados).toEqual([]);
+  });
 });

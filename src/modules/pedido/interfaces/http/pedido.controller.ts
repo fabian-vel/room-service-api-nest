@@ -16,6 +16,7 @@ import { CancelarPedidoUseCase } from '../../application/usecase/cancelar-pedido
 import { PedidoUseCase } from '../../application/usecase/pedido.use-case.js';
 import type { PedidoCriterio } from '../../domain/model/pedido.js';
 import { PedidoDocs } from './pedido.docs.js';
+import { Acceso, HABITACION } from '../../../../shared/security/acceso.js';
 
 @PedidoDocs.controller()
 @Controller('pedido')
@@ -27,6 +28,7 @@ export class PedidoController {
   ) {}
 
   @Post()
+  @Acceso(HABITACION)
   @HttpCode(200)
   @PedidoDocs.crear()
   async crearPedido(
@@ -43,25 +45,24 @@ export class PedidoController {
   }
 
   @Put(':id/estado')
+  @Acceso('GESTION_PEDIDOS')
   @PedidoDocs.cambiarEstado()
   async cambiarEstado(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { estadoPedido?: number },
     @Claims() claims: ClaimsToken,
   ) {
-    // lo cambian los empleados (cocina); un token de habitación no trae rol
-    if (!('rol' in claims))
-      throw new ForbiddenException(
-        'Solo un empleado puede cambiar el estado del pedido',
-      );
+    // el guard ya rechaza el token de habitación; el mesero solo entrega
     const estado = await this.cambiarEstadoPedidoUseCase.cambiarEstado(
       id,
       body?.estadoPedido,
+      'rol' in claims && claims.rol === 'MESERO',
     );
     return ApiResponse.ok('Estado del pedido actualizado', estado, 1);
   }
 
   @Post(':id/cancelar')
+  @Acceso(HABITACION)
   @HttpCode(200)
   @PedidoDocs.cancelar()
   async cancelar(

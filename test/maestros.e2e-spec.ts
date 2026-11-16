@@ -13,9 +13,14 @@ try {
 // solo lecturas y validaciones: ninguna prueba escribe en la BD
 describe('Maestros (e2e)', () => {
   let app: INestApplication<App>;
-  let token: string;
-  const api = () =>
+  let tokenAdmin: string;
+  let tokenHabitacion: string;
+  const api = (token = tokenAdmin) =>
     request.agent(app.getHttpServer()).set('Authorization', `Bearer ${token}`);
+  const tokenRol = (rol: string) =>
+    app
+      .get(JwtService)
+      .generarTokenEmpleado({ sub: 'e2e', nombre: 'e2e', rol });
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -24,7 +29,8 @@ describe('Maestros (e2e)', () => {
     app = moduleFixture.createNestApplication();
     setupApp(app);
     await app.init();
-    token = app
+    tokenAdmin = tokenRol('ADMIN');
+    tokenHabitacion = app
       .get(JwtService)
       .generarToken(
         { sub: 'e2e', clienteNombre: 'e2e', accesoId: 0 },
@@ -67,13 +73,15 @@ describe('Maestros (e2e)', () => {
   });
 
   it('GET /categorias devuelve el árbol padre/subcategorías', async () => {
-    const res = await api().get('/api/v1/categorias').expect(200);
+    const res = await api(tokenHabitacion)
+      .get('/api/v1/categorias')
+      .expect(200);
     expect(res.body.data[0].mecaParentId).toBeNull();
     expect(Array.isArray(res.body.data[0].subCategorias)).toBe(true);
   });
 
   it('POST /etiquetas/consulta por categoría responde 200', async () => {
-    const res = await api()
+    const res = await api(tokenHabitacion)
       .post('/api/v1/etiquetas/consulta')
       .send({ consultaPorCategoria: true, mecaId: 1 })
       .expect(200);
@@ -101,5 +109,24 @@ describe('Maestros (e2e)', () => {
 
   it('id no numérico responde 400', async () => {
     await api().delete('/api/v1/categorias/abc').expect(400);
+  });
+
+  it.each([
+    ['habitación', 'get', '/api/v1/constantes'],
+    ['habitación', 'get', '/api/v1/categorias/todas'],
+    ['habitación', 'get', '/api/v1/reportes'],
+    ['habitación', 'get', '/api/v1/pedidos'],
+    ['AUX_ADMIN', 'get', '/api/v1/constantes'],
+    ['COCINA', 'get', '/api/v1/etiquetas'],
+    ['RECEPCION', 'get', '/api/v1/consulta-pedidos-fecha-actual'],
+    ['MESERO', 'get', '/api/v1/reportes'],
+    ['ADMIN', 'post', '/api/v1/pedido'],
+  ] as const)('%s no puede %s %s: 403', async (quien, metodo, url) => {
+    const token = quien === 'habitación' ? tokenHabitacion : tokenRol(quien);
+    await api(token)[metodo](url).expect(403);
+  });
+
+  it('AUX_ADMIN gestiona los maestros', async () => {
+    await api(tokenRol('AUX_ADMIN')).get('/api/v1/etiquetas').expect(200);
   });
 });

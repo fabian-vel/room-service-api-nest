@@ -13,9 +13,11 @@ import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { MenuItemUseCase } from '../../application/usecase/menu-item.use-case.js';
 import type { MenuItemGuardar } from '../../domain/model/menu-item.js';
 import { ItemMaestroDocs } from './item-maestro.docs.js';
+import { Acceso } from '../../../../shared/security/acceso.js';
 
 // maestro de ítems del front; el menú de la app sigue en POST /menu
 @ItemMaestroDocs.controller()
+@Acceso('MAESTROS')
 @Controller('items')
 export class ItemMaestroController {
   constructor(private readonly menuItemUseCase: MenuItemUseCase) {}

@@ -2,8 +2,10 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { ItemsEspecialesUseCase } from '../../application/usecase/items-especiales.use-case.js';
 import { ItemsEspecialesDocs } from './items-especiales.docs.js';
+import { Acceso, HABITACION } from '../../../../shared/security/acceso.js';
 
 @ItemsEspecialesDocs.controller()
+@Acceso(HABITACION)
 @Controller('items-especiales')
 export class ItemsEspecialesController {
   constructor(

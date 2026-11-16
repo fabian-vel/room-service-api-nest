@@ -37,7 +37,7 @@ export const ReporteDocs = {
         description: 'YYYY-MM-DD (incluye todo el día)',
       }),
       ApiForbiddenResponse({
-        description: 'El token no corresponde a un empleado',
+        description: 'El rol no tiene acceso a reportes',
       }),
       ApiUnprocessableEntityResponse({
         description:

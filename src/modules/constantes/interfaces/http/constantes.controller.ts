@@ -13,8 +13,10 @@ import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { ConstantesUseCase } from '../../application/usecase/constantes.use-case.js';
 import type { Constantes } from '../../domain/model/constantes.js';
 import { ConstantesDocs } from './constantes.docs.js';
+import { Acceso } from '../../../../shared/security/acceso.js';
 
 @ConstantesDocs.controller()
+@Acceso('CONSTANTES')
 @Controller('constantes')
 export class ConstantesController {
   constructor(private readonly constantesUseCase: ConstantesUseCase) {}

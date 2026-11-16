@@ -51,7 +51,7 @@ src/
   shared/                      transversal
     database/                  pool de PostgreSQL, ejecutarSql (:param -> $n) y transacciones
     domain/                    excepciones, Pagina, puerto TransactionManager
-    security/                  JwtService, JwtAuthGuard (global), @Public(), @Claims(), PasswordEncoder
+    security/                  JwtService, JwtAuthGuard (global), @Public(), @Acceso() y matriz de roles, @Claims(), PasswordEncoder
     response/api-response.ts   formato de respuesta { timestamp, status, message, data, size }
     global-exception.filter.ts formato de error { timestamp, status, code, message, path, correlationId }
   modules/
@@ -70,6 +70,8 @@ test/                          pruebas e2e contra la BD
 ## Endpoints
 
 Todos bajo `/api/v1` y con `Authorization: Bearer <token>`, salvo los de `auth`. El detalle y ejemplos están en Swagger UI.
+
+**Roles:** cada endpoint declara con `@Acceso(...)` quién lo puede llamar: módulos de la matriz de roles (`src/shared/security/acceso.ts`) y/o `HABITACION` para el token del huésped. El guard responde 403 si el rol no está en el módulo, y también si el endpoint no declara `@Acceso`. Roles: `ADMIN`, `AUX_ADMIN`, `RECEPCION`, `COCINA`, `MESERO` (el mesero solo puede marcar pedidos como entregados).
 
 | Método | Ruta | Uso |
 |---|---|---|

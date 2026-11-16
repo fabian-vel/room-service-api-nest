@@ -3,8 +3,10 @@ import { ApiResponse } from '../../../../shared/response/api-response.js';
 import { MenuItemUseCase } from '../../application/usecase/menu-item.use-case.js';
 import type { MenuItemRequest } from '../../domain/model/menu-item.js';
 import { MenuItemDocs } from './menu-item.docs.js';
+import { Acceso, HABITACION } from '../../../../shared/security/acceso.js';
 
 @MenuItemDocs.controller()
+@Acceso(HABITACION)
 @Controller('menu')
 export class MenuItemController {
   constructor(private readonly menuItemUseCase: MenuItemUseCase) {}

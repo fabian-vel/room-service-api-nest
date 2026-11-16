@@ -23,6 +23,7 @@ export class CambiarEstadoPedidoUseCase {
   async cambiarEstado(
     pediId: number,
     espeIdDestino: unknown,
+    soloEntregar = false,
   ): Promise<CambioEstadoResponse> {
     if (!Number.isInteger(espeIdDestino))
       throw new BusinessException('El estado del pedido es obligatorio');
@@ -38,6 +39,10 @@ export class CambiarEstadoPedidoUseCase {
           espeIdDestino as number,
         );
         if (!destino) throw new BusinessException('Estado de pedido no válido');
+        if (soloEntregar && destino.espeLlaveMst !== 'ESTA_PEDI_ENTR')
+          throw new BusinessException(
+            'El mesero solo puede marcar el pedido como entregado',
+          );
         validarTransicion(actual.estado, destino);
         await this.pedidoRepository.actualizarEstado(pediId, destino.espeId);
         return { actual, destino };

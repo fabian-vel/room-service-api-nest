@@ -14,13 +14,16 @@ import { SuccessMessages } from '../../../../shared/constant/success-messages.js
 import { MenuCategoriaUseCase } from '../../application/usecase/menu-categoria.use-case.js';
 import type { MenuCategoria } from '../../domain/model/menu-categoria.js';
 import { MenuCategoriaDocs } from './menu-categoria.docs.js';
+import { Acceso, HABITACION } from '../../../../shared/security/acceso.js';
 
 @MenuCategoriaDocs.controller()
+@Acceso('MAESTROS')
 @Controller('categorias')
 export class MenuCategoriaController {
   constructor(private readonly menuCategoriaUseCase: MenuCategoriaUseCase) {}
 
   @Get()
+  @Acceso(HABITACION, 'MAESTROS')
   @MenuCategoriaDocs.consultar()
   async consultarCategorias() {
     const categorias = await this.menuCategoriaUseCase.consultarCategorias();

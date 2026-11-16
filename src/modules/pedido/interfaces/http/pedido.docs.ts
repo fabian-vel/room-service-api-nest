@@ -58,7 +58,7 @@ export const PedidoDocs = {
       ApiBody({ schema: { example: { estadoPedido: 2 } } }),
       ApiBadRequestResponse({ description: 'El id no es numérico' }),
       ApiForbiddenResponse({
-        description: 'Solo un empleado puede cambiar el estado del pedido',
+        description: 'El rol no tiene acceso a la gestión de pedidos',
       }),
       ApiNotFoundResponse({ description: 'Pedido no encontrado' }),
       ApiUnprocessableEntityResponse({

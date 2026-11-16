@@ -10,6 +10,7 @@ import type { Claims as ClaimsToken } from '../../../../shared/security/jwt.serv
 import { ConsultaPedidoUseCase } from '../../application/usecase/consulta-pedido.use-case.js';
 import type { ConsultaPedidoFiltro } from '../../domain/model/consulta-pedido.js';
 import { ConsultaPedidoDocs } from './consulta-pedido.docs.js';
+import { Acceso, HABITACION } from '../../../../shared/security/acceso.js';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_SIZE = 20;
@@ -22,6 +23,7 @@ export class ConsultaPedidoController {
   constructor(private readonly consultaPedidoUseCase: ConsultaPedidoUseCase) {}
 
   @Get('consulta-pedidos')
+  @Acceso(HABITACION)
   @ConsultaPedidoDocs.porHabitacion()
   async consultarPedidoPorUsuario(@Claims() claims: ClaimsToken) {
     if (!('accesoId' in claims))
@@ -37,6 +39,7 @@ export class ConsultaPedidoController {
   }
 
   @Get('consulta-pedidos-fecha-actual')
+  @Acceso('GESTION_PEDIDOS')
   @ConsultaPedidoDocs.fechaActual()
   async consultarPedidoFechaActual() {
     const pedidos =
@@ -49,6 +52,7 @@ export class ConsultaPedidoController {
   }
 
   @Get('pedidos')
+  @Acceso('CONSULTA_PEDIDOS')
   @ConsultaPedidoDocs.filtro()
   async consultarPedidoFiltro(@Query() query: Record<string, unknown>) {
     const pagina = await this.consultaPedidoUseCase.consultarPedidoFiltro(
